@@ -11,6 +11,9 @@ packages = ["cargo", "freetype", "lcms2", "libiconv", "libimagequant", "libjpeg"
 [userenv.shared]
 API_ID = "964098"
 PORT = "5000"
+API_HASH = "3a40779521bc99b4c9753572ddd17ee7"
+index_all = "true"
+SESSION_STRING = "BQAOtgIAbZ_-uL3v3D6XR0_iD-E3fH-0RwugpOhM3qFMzXQSNqTkzn3OcyraURHkviKttZFkx7mdcIyCmoqQsmLdoTH4itiCkYGuJ77WeBK-teE5xos10irHmD984MRGyUxSz2wfNtRO5lI-R9HxMFXGy6GM_tUQ9XdtkwV6gvGyGep5yaxWwFIjkxO_MhGjt42n1GFJFby-MHjPAkNktGOi2ahjhzDDMKlnzs9aePrqXjqThYcIVLpMLKvmI9baFeKZ8HAYoPP-V-5jOVP_MgVVyluIgTFzgjmFae2pN9pYL11DKst4NbTuSp_rROmjgUrlWXUQk0YIOcnoF752r20vRbr1BQAAAAGqizSJAA"
 
 [workflows]
 runButton = "Project"
@@ -35,10 +38,6 @@ waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
-
-[[ports]]
-localPort = 5000
-externalPort = 80
 
 [deployment]
 deploymentTarget = "vm"
