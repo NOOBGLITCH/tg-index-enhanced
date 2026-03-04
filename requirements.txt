@@ -5,3 +5,10 @@ cryptg
 pillow
 aiohttp_session[secure]
 python-dotenv
+aiohttp
+aiohttp-jinja2
+aiohttp_session[secure]
+cryptg
+pillow
+python-dotenv
+telethon
