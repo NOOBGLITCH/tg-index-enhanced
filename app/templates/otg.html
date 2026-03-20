@@ -1,34 +1,97 @@
 {% include 'header.html' %}
 
-    <h1 class="px-4 my-2 text-2xl text-center font-bold text-green-400">
-        On-The-Go Indexing
-    </h1>
+<div class="hero py-12 bg-base-200 rounded-box">
+	<div class="hero-content text-center">
+		<div class="max-w-2xl">
+			<h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+				<i class="fas fa-bolt mr-2"></i>On-The-Go Indexing
+			</h1>
+			<p class="py-6 text-base-content/70">
+				Index any public Telegram channel or group on the go with just its username. 
+				Get instant access to media files and messages.
+			</p>
+		</div>
+	</div>
+</div>
 
-    <div class="px-4 mx-auto my-2">
+<div class="card bg-base-200 shadow-xl max-w-xl mx-auto mt-8">
+	<div class="card-body">
+		{% if error %}
+		<div class="alert alert-error mb-4">
+			<i class="fas fa-exclamation-circle"></i>
+			<span>{{error}}</span>
+		</div>
+		<script>
+			setTimeout(function(){
+				document.querySelector('.alert').classList.add('hidden');
+			}, 7000);
+		</script>
+		{% endif %}
 
-        <p class="text-center text-gray-700">
-            On-The-Go (OTG) Indexing. Index any public telegram channel or public telegram group on the go with it's username.
-        </p>
+		<form class="flex flex-col gap-4" action="/otg" method="POST">
+			<div class="form-control">
+				<label class="label" for="id">
+					<span class="label-text font-semibold">
+						<i class="fas fa-user mr-2"></i>
+						Telegram Username
+					</span>
+				</label>
+				<div class="join w-full">
+					<span class="join-item btn btn-disabled">
+						@
+					</span>
+					<input 
+						id="id" 
+						name="id" 
+						type="text" 
+						class="input input-bordered join-item flex-1 focus:input-primary" 
+						placeholder="Enter username without @" 
+						required>
+				</div>
+				<label class="label">
+					<span class="label-text-alt text-base-content/60">e.g., for t.me/username enter: username</span>
+				</label>
+			</div>
 
-    </div>
+			<div class="form-control mt-4">
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-search mr-2"></i>
+					Index Channel
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
 
-    {% if error %}
-        <div id="alert" class="px-4 mx-auto my-2 text-center m-2 ">
-            <p class="text-white bg-red-500 w-auto inline-block px-4 py-2 rounded-lg"> {{error}} </p>
-        </div>
-        <script>
-        setTimeout(function(){
-            document.getElementById("alert").style.display = 'none';
-        }, 7000);
-        </script>
-    {% endif %}
-
-    <div class="px-4 mx-auto my-2">
-        <form class="my-2 text-center flex justify-center" action="/otg" method="POST">
-                <input class="px-4 py-2 rounded-l-full border border-r-0 border-teal-400 outline-none" type="text" name="id" placeholder="Enter username..." required>
-                <button class="px-4 py-2 bg-teal-400 border border-teal-400 hover:bg-white hover:text-teal-400 text-white rounded-r-full outline-none" type="submit">Get Result</button>
-        </form>
-    </div>
-
+<!-- Features Section -->
+<div class="grid md:grid-cols-3 gap-4 mt-12 max-w-4xl mx-auto">
+	<div class="card bg-base-200 shadow">
+		<div class="card-body items-center text-center">
+			<div class="btn btn-circle btn-primary">
+				<i class="fas fa-bolt"></i>
+			</div>
+			<h3 class="font-bold mt-4">Instant Access</h3>
+			<p class="text-sm text-base-content/60">Get immediate access to public channel content</p>
+		</div>
+	</div>
+	<div class="card bg-base-200 shadow">
+		<div class="card-body items-center text-center">
+			<div class="btn btn-circle btn-secondary">
+				<i class="fas fa-images"></i>
+			</div>
+			<h3 class="font-bold mt-4">Media Download</h3>
+			<p class="text-sm text-base-content/60">Download photos, videos, and files easily</p>
+		</div>
+	</div>
+	<div class="card bg-base-200 shadow">
+		<div class="card-body items-center text-center">
+			<div class="btn btn-circle btn-accent">
+				<i class="fab fa-telegram-plane"></i>
+			</div>
+			<h3 class="font-bold mt-4">Channel Search</h3>
+			<p class="text-sm text-base-content/60">Search through all messages in the channel</p>
+		</div>
+	</div>
+</div>
 
 {% include 'footer.html' %}

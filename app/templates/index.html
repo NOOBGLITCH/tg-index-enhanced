@@ -1,138 +1,194 @@
-{% include 'header.html' %} {% block javascript %}
+{% include 'header.html' %}
+{% block javascript %}
 <script type="text/javascript">
 	{% include "./js/filesaver.min.js" %}
     {% include "./js/playlist.js" %}
-
 </script>
 {% endblock %}
 
-<div class="block md:flex justify-between items-center px-4 text-center border-b-2">
-	<div class="m-2 block md:flex items-center justify-center md:justify-start text-2xl md:text-right font-bold text-blue-500">
-		<img class="mx-auto md:ml-0 md:mr-1 my-4 md:my-2 w-16 h-16 rounded-full bg-black outline-none" src="{{logo}}">
-        <a href="javascript:window.location.href=window.location.href"> {{name}} </a>
-    </div>
+<!-- Channel Header -->
+<div class="card bg-base-100 shadow-lg mb-6">
+	<div class="card-body flex flex-col md:flex-row items-center justify-between gap-4">
+		<div class="flex items-center gap-4">
+			<img class="w-16 h-16 rounded-full ring-4 ring-primary" src="{{logo}}" alt="{{name}}">
+			<h2 class="card-title text-2xl font-bold">
+				<a href="javascript:window.location.href=window.location.href" class="hover:text-primary transition-colors">
+					{{name}}
+				</a>
+			</h2>
+		</div>
 
-    <div class="m-2">
-        <form class="">
+		<div class="w-full md:w-auto flex flex-col sm:flex-row gap-2">
+			<!-- Items per page selector -->
+			<div class="dropdown dropdown-end">
+				<div tabindex="0" role="button" class="btn btn-outline btn-primary btn-sm">
+					<i class="fas fa-list mr-2"></i>
+					<span id="limitDisplay">{{current_limit}} items</span>
+					<i class="fas fa-chevron-down ml-2"></i>
+				</div>
+				<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-36">
+					<li><a href="#" onclick="setLimit(20)" class="limit-option" data-limit="20"><i class="fas fa-layer-group mr-2"></i>20 items</a></li>
+					<li><a href="#" onclick="setLimit(50)" class="limit-option" data-limit="50"><i class="fas fa-layer-group mr-2"></i>50 items</a></li>
+					<li><a href="#" onclick="setLimit(100)" class="limit-option" data-limit="100"><i class="fas fa-layer-group mr-2"></i>100 items</a></li>
+				</ul>
+			</div>
 
-            <div class="my-4 md:my-2">
-                <div class="flex items-center rounded-full shadow dark:bg-white">
-                    <input class="rounded-l-full w-full py-1 px-6 text-gray-700 leading-tight focus:outline-none dark:text-black"
-                        name="search" id="search" value="{% if search %}{{search}}{% endif %}" type="text"
-                        placeholder="Search">
-                    <div class="p-1">
-                        <button
-                            class="bg-blue-500 text-white rounded-full p-2 hover:bg-blue-400 focus:outline-none w-12 h-12 flex items-center justify-center">
-                            <div><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg></div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-        </form>
-    </div>
-
+			<!-- Search form -->
+			<form class="join w-full">
+				<input 
+					class="input input-bordered join-item flex-1 md:w-64" 
+					name="search" 
+					id="search" 
+					value="{% if search %}{{search}}{% endif %}" 
+					type="text"
+					placeholder="Search files...">
+				<input type="hidden" name="limit" id="limitInput" value="{{current_limit}}">
+				<button class="btn btn-primary join-item">
+					<i class="fas fa-search"></i>
+				</button>
+			</form>
+		</div>
+	</div>
 </div>
+
+<script>
+	// Initialize limit from localStorage or use server default
+	function getStoredLimit() {
+		const stored = localStorage.getItem('tgindex_limit');
+		if (stored && [20, 50, 100].includes(parseInt(stored))) {
+			return parseInt(stored);
+		}
+		return {{current_limit}};
+	}
+
+	// Set limit and save to localStorage
+	function setLimit(limit) {
+		localStorage.setItem('tgindex_limit', limit);
+		document.getElementById('limitInput').value = limit;
+		document.getElementById('limitDisplay').textContent = limit + ' items';
+		
+		// Rebuild URL with new limit, keeping search if present
+		const url = new URL(window.location.href);
+		url.searchParams.set('limit', limit);
+		url.searchParams.delete('page'); // Reset to page 1
+		window.location.href = url.toString();
+	}
+
+	// Update display on page load
+	document.addEventListener('DOMContentLoaded', function() {
+		const limit = getStoredLimit();
+		document.getElementById('limitDisplay').textContent = limit + ' items';
+		
+		// Highlight current limit option
+		document.querySelectorAll('.limit-option').forEach(function(el) {
+			if (parseInt(el.dataset.limit) === limit) {
+				el.classList.add('active');
+			}
+		});
+	});
+</script>
 
 {% if item_list %}
 
-<div class="m-2">
-    <div class="block flex flex-wrap sm:justify-center items-center text-center break-all">
-        {% for item in item_list %}
-
-        <!-- Card  -->
-        <div title="{% if item.media %} {{item.mime_type}} | {{item.human_size}} {% else %} Text message {% endif %}"
-            href="{{item.url}}"
-            class="text-sm items-center justify-center w-full min-h-full sm:w-2/5 md:w-1/4 lg:w-1/6 rounded m-2 shadow hover:shadow-lg dark:bg-red-700">
-
-            {% if item.media %}
-
-                <a href="{{item.url}}"><img src="{{item.thumbnail}}" class="w-full rounded shadow-inner"></a>
-                <div class="p-2">{{item.insight}}</div>
-                <!-- Buttons container -->
-                <span class="inline-flex mb-1 rounded shadow-inner dark:bg-green-500">                    
-                    {% if not block_downloads %}
-                        <!-- Direct file download button -->
-                        <a href="{{item.download}}"
-                            class="flex-1 hover:bg-blue-300 text-gray-900 font-semibold py-1 px-2 rounded items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" />
-                            </svg>
-                        </a>
-
-                        {% if 'video' in item.mime_type %}
-                            <!--  Kodi/media player supported url ending with v.mp4 -->
-                            <a title="v.mp4" href="{{item.download}}"
-                                class="flex-1 hover:bg-blue-300 text-gray-900 font-semibold py-1 px-2 rounded items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </a>
-
-                            <!-- One click single item playlist Download -->
-                            <button title="{{item.filename}}.m3u" onclick="singleItemPlaylist('{{item.download}}','{{item.filename}}', '{{m3u_option}}');"
-                                class="flex-1 hover:bg-blue-300 text-gray-900 font-semibold py-1 px-2 rounded items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
-                                </svg>
-                            </button>
-                        {% endif %}
-                    {% endif %}
-
-                </span>
-
-            {% else %}
-            <a href={{item.url}}>
-                <div class="p-4 rounded shadow-inner rounded text-dark py-0 px-2">{{item.insight}}</div>
-            </a>
-            {% endif %}
-            <div class="bg-blue-500 rounded text-white my-1 py-0 px-1">{{item.file_id}}</div>
-
-        </div>
-
-
-        {% endfor %}
-    </div>
-
+<!-- Results Header -->
+<div class="flex items-center justify-between mb-4 px-2">
+	<div class="badge badge-lg badge-primary p-4">
+		<i class="fas fa-file-alt mr-2"></i>
+		{{item_list|length}} items
+	</div>
 </div>
 
-<p class="my-2 text-center font-semibold">
-    {{item_list|length}} items
-</p>
+<!-- Items Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+	{% for item in item_list %}
+	<div title="{% if item.media %} {{item.mime_type}} | {{item.human_size}} {% else %} Text message {% endif %}"
+		class="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+		
+		{% if item.media %}
+			<a href="{{item.url}}">
+				<figure class="relative overflow-hidden">
+					<img src="{{item.thumbnail}}" class="w-full h-40 object-cover" alt="{{item.filename}}">
+					<div class="absolute top-2 right-2 badge badge-sm bg-black/70 text-white">{{item.human_size}}</div>
+				</figure>
+			</a>
+			<div class="card-body p-3">
+				<p class="text-xs text-base-content/70 line-clamp-2 mb-2">{{item.insight}}</p>
+				
+				<!-- Action Buttons -->
+				<div class="flex gap-1">
+					{% if not block_downloads %}
+					<a href="{{item.download}}" 
+					   class="btn btn-xs btn-circle btn-success" 
+					   title="Download">
+						<i class="fas fa-download"></i>
+					</a>
 
-<div class="mx-auto my-2 text-center flex text-white content-center justify-center">
-    {% if prev_page %}
-    <a title="Previous page"
-        class="mx-2 p-2 border rounded bg-green-500 hover:border-green-500 hover:text-green-500 hover:bg-white"
-        href="{{prev_page.url}}">Page {{prev_page.no}}</a>
-    {% endif %}
-    <p
-        class="mx-2 p-2 border rounded border-green-500 text-green-500 hover:border-green-500 hover:text-green-500 hover:bg-white">
-        Page {{cur_page}}</p>
-    {% if next_page %}
-    <a title="Next page"
-        class="mx-2 p-2 border rounded bg-green-500 hover:border-green-500 hover:text-green-500 hover:bg-white"
-        href="{{next_page.url}}">Page {{next_page.no}}</a>
-    {% endif %}
+					{% if 'video' in item.mime_type %}
+					<a href="{{item.download}}" title="Play v.mp4" class="btn btn-xs btn-circle btn-info">
+						<i class="fas fa-play"></i>
+					</a>
+					<button title="{{item.filename}}.m3u" 
+						onclick="singleItemPlaylist('{{item.download}}','{{item.filename}}', '{{m3u_option}}');"
+						class="btn btn-xs btn-circle btn-warning">
+						<i class="fas fa-list"></i>
+					</button>
+					{% endif %}
+					{% endif %}
+				</div>
+			</div>
+		{% else %}
+			<a href={{item.url}}>
+				<div class="p-4">
+					<p class="text-sm line-clamp-3">{{item.insight}}</p>
+				</div>
+			</a>
+		{% endif %}
+		
+		<div class="px-3 pb-3">
+			<code class="badge badge-outline text-xs">{{item.file_id}}</code>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+
+<!-- Pagination -->
+<div class="flex justify-center items-center gap-2 my-8">
+	{% if prev_page %}
+	<a title="Previous page"
+		class="btn btn-outline btn-primary"
+		href="{{prev_page.url}}">
+		<i class="fas fa-chevron-left mr-2"></i>
+		Page {{prev_page.no}}
+	</a>
+	{% endif %}
+	
+	<div class="badge badge-lg badge-primary p-4">
+		<i class="fas fa-bookmark mr-2"></i>
+		Page {{cur_page}}
+	</div>
+	
+	{% if next_page %}
+	<a title="Next page"
+		class="btn btn-outline btn-primary"
+		href="{{next_page.url}}">
+		Page {{next_page.no}}
+		<i class="fas fa-chevron-right ml-2"></i>
+	</a>
+	{% endif %}
 </div>
 
 {% else %}
 
-<p class="my-4 text-center text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
-    No message to display!
-</p>
+<!-- Empty State -->
+<div class="hero py-20">
+	<div class="hero-content text-center">
+		<div class="max-w-md">
+			<i class="fas fa-folder-open text-6xl text-base-content/30 mb-4"></i>
+			<h2 class="text-3xl font-bold mt-4">No messages found</h2>
+			<p class="py-4 text-base-content/60">There are no items to display in this channel.</p>
+		</div>
+	</div>
+</div>
 
 {% endif %}
 

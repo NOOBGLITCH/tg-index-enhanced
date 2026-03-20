@@ -1,45 +1,63 @@
 {% include 'header.html' %}
 
-<div class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-	<div class="max-w-md w-full space-y-8">
-		<div>
-			<h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-green-500">
-				Sign in to view the contents
-			</h2>
-		</div>
-		{% if error %}
-		<div>
-			<h2 class="p-2 text-center text-xl text-red-500 rounded border border-l-4 border-red-500">
-				{{ error }}
-			</h2>
-		</div>
-		{% endif %}
-		<form class="mt-8 space-y-6" action="/login" method="POST">
-			<input type="hidden" name="remember" value="true">
-            <input type="hidden" name="redirect_to" value="{{redirect_to}}">
-            <div class="rounded-md shadow-sm -space-y-px">
-                <div>
-                    <label for="email-address" class="sr-only">Username</label>
-                    <input id="email-address" name="username" type="text" required
-                        class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-900 placeholder-gray-700 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-red-500 dark:focus:border-red-500 focus:z-10 sm:text-sm mb-2"
-                        placeholder="Username">
-                </div>
-                <div>
-                    <label for="password" class="sr-only">Password</label>
-                    <input id="password" name="password" type="password" autocomplete="current-password" required
-                        class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-900 placeholder-gray-700 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-red-500 dark:focus:border-red-500 focus:z-10 sm:text-sm mt-2"
-                        placeholder="Password">
-                </div>
-            </div>
-            <div>
-                <button type="submit"
-                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-red-700 dark:hover:bg-red-900 dark:focus:ring-red-500">
-                    Sign in
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+<div class="min-h-[80vh] flex items-center justify-center px-4">
+	<div class="card bg-base-200 w-full max-w-md shadow-2xl">
+		<div class="card-body">
+			<div class="text-center mb-6">
+				<i class="fas fa-lock text-5xl text-primary mb-4"></i>
+				<h2 class="text-2xl font-bold">Sign in to view contents</h2>
+				<p class="text-base-content/60 mt-2">Enter your credentials to continue</p>
+			</div>
 
+			{% if error %}
+			<div class="alert alert-error mb-4">
+				<i class="fas fa-exclamation-circle"></i>
+				<span>{{ error }}</span>
+			</div>
+			{% endif %}
+
+			<form class="space-y-4" action="/login" method="POST">
+				<input type="hidden" name="remember" value="true">
+				<input type="hidden" name="redirect_to" value="{{redirect_to}}">
+				
+				<div class="form-control">
+					<label class="label" for="email-address">
+						<span class="label-text font-semibold">
+							<i class="fas fa-user mr-2"></i>Username
+						</span>
+					</label>
+					<input id="email-address" 
+						   name="username" 
+						   type="text" 
+						   required
+						   class="input input-bordered focus:input-primary" 
+						   placeholder="Enter your username">
+				</div>
+
+				<div class="form-control">
+					<label class="label" for="password">
+						<span class="label-text font-semibold">
+							<i class="fas fa-key mr-2"></i>Password
+						</span>
+					</label>
+					<input id="password" 
+						   name="password" 
+						   type="password" 
+						   autocomplete="current-password" 
+						   required
+						   class="input input-bordered focus:input-primary" 
+						   placeholder="Enter your password">
+				</div>
+
+				<div class="form-control mt-6">
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-sign-in-alt mr-2"></i>
+						Sign In
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 
 {% include 'footer.html' %}

@@ -1,129 +1,170 @@
 {% include 'header.html' %}
 
-            <div class="p-4 space-y-8">
-                {% if found %}
-                    {% if media %}
-                        <h1 class="text-blue-500 text-center text-lg lg:text-xl xl:text-3xl w-full break-all">
-                            Download {{name}}
-                        </h1>
+<style>
+    /* Custom Minion-Themed Overrides */
+    .text-primary { color: #f9d71c !important; } /* Minion Yellow */
+    .btn-primary { background-color: #f9d71c !important; color: #333 !important; border: none; }
+    .btn-primary:hover { background-color: #e5c619 !important; }
+    .btn-success { background-color: #2b5b8e !important; border: none; color: white; } /* Denim Blue */
+    .btn-success:hover { background-color: #1e3f63 !important; }
+    .bg-base-300 { background-color: #222 !important; } /* Darker contrast for 3D feel */
+    .card { border: 4px solid #d1d1d1; } /* Silver Goggle Frame Effect */
+</style>
 
-                        <div class="mx-auto w-full p-2 md:w-3/4 lg:w-2/5 p-2">
-                            {% if media.image %}
-                                <img class="mx-auto rounded" src="{{thumbnail}}" alt="{{name}}">
-                            {% elif media.video %}
-                                <div id="video-warning" class="mx-auto p-4 bg-gray-600 text-gray-300 rounded border text-center hidden break-words">
-                                    <p> Video {{name}} could not be played!</p>
-                                </div>
+<div class="container mx-auto px-4 py-8">
+	{% if found %}
+		{% if media %}
+			<div class="text-center mb-8">
+				<h1 class="text-3xl md:text-4xl font-bold text-primary drop-shadow-md">
+					<i class="fas fa-file-download mr-2"></i>Download {{name}}
+				</h1>
+			</div>
 
-                                <div id="my-video-wrapper">
-                                    <video id="my-video-player" class="mx-auto rounded" controls poster="{{thumbnail}}">
-                                        <source src="{{download_url}}" type="video/mp4" />
-                                    </video>
-                                </div>
+			<div class="card bg-base-200 shadow-2xl max-w-4xl mx-auto overflow-hidden">
+				<div class="card-body">
+					{% if media.image %}
+						<figure class="flex justify-center">
+							<img class="rounded-lg shadow-lg max-h-[70vh] border-4 border-white" src="{{thumbnail}}" alt="{{name}}">
+						</figure>
+					{% elif media.video %}
+						<div id="video-error" class="hidden alert alert-error mt-4 mb-4">
+							<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+							<span>Video could not be played!</span>
+						</div>
 
-                                <script>
-                                    var video = document.querySelector("video");
-                                    var src = video.firstElementChild
+						<div class="mockup-window border bg-base-300 shadow-inner">
+							<div id="jwplayer"></div>
+						</div>
 
-                                    src.addEventListener('error', function(evt) {
-                                        console.log(evt);
-                                        document.getElementById('my-video-wrapper').style.display = 'none';
-                                        document.getElementById('video-warning').style.display = 'block';
-                                    });
-                                    var myFP = fluidPlayer(
-                                        'my-video-player',{
-                                            "layoutControls": {
-                                                "autoPlay": false,
-                                                "mute": true,
-                                                "allowTheatre": true,
-                                                "playPauseAnimation": true,
-                                                "playbackRateEnabled": true,
-                                                "allowDownload": false,
-                                                "playButtonShowing": true,
-                                                "fillToContainer": true,
-                                                "posterImage": ""
-                                            }
-                                        }
-                                    );
-                                </script>
-                            {% elif media.audio %}
-                                 <div id="audio-warning" class="mx-auto p-4 bg-gray-600 text-gray-300 rounded border text-center hidden break-words">
-                                    <p> Audio {{name}} could not be played!</p>
-                                </div>
+						<script>
+							const playerInstance = jwplayer("jwplayer").setup({
+								"file": "{{download_url}}",
+								"image": "{{thumbnail}}",
+								"width": "100%",
+								"aspectratio": "16:9",
+								"autostart": false,
+								"controls": true,
+								"playbackRateControls": true,
+								"sharing": true,
+								mute: false,
+								volume: 100,
+								skin: { name: "netflix" },
+								"displaytitle": true,
+								"displaydescription": true,
+								"abouttext": "Telegram Index",
+								"aboutlink": window.location.origin
+							});
+							
+							// SVG Icons for Control Bar
+							const iconPrev10 = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>';
+							const iconNext10 = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>';
+							const iconDownload = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
+							
+							// 1. Rewind 10s
+							playerInstance.addButton(iconPrev10, "Back 10s", function() {
+								playerInstance.seek(Math.max(0, playerInstance.getPosition() - 10));
+							}, "prev10-btn");
 
-                                <div id="my-audio-wrapper">
-                                    <img class="mx-auto rounded w-full" src="{{thumbnail}}" alt="{{name}}">
-                                    <audio class="mx-auto" controls muted>
-                                        <source src="{{download_url}}" type="audio/mpeg" />
-                                    </audio>
-                                </div>
-                                <script>
-                                    var audio = document.querySelector("audio");
-                                    var src = audio.firstElementChild
+							// 2. Forward 10s
+							playerInstance.addButton(iconNext10, "Forward 10s", function() {
+								playerInstance.seek(playerInstance.getPosition() + 10);
+							}, "next10-btn");
 
-                                    src.addEventListener('error', function(evt) {
-                                        console.log(evt);
-                                        document.getElementById('my-audio-wrapper').style.display = 'none';
-                                        document.getElementById('audio-warning').style.display = 'block';
-                                    });
-                                </script>
-                            {% endif %}
+							// 3. Download
+							playerInstance.addButton(iconDownload, "Download Video", function() {
+								const anchor = document.createElement("a");
+								anchor.href = "{{download_url}}";
+								anchor.download = "{{name}}";
+								anchor.click();
+							}, "download-video-btn");
+							
+							playerInstance.on('error', function() {
+								document.getElementById('video-error').classList.remove('hidden');
+							});
+						</script>
+					{% elif media.audio %}
+						<div class="flex flex-col items-center gap-6 py-4">
+							<div class="avatar">
+								<div class="w-48 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 shadow-2xl">
+									<img src="{{thumbnail}}" alt="{{name}}" />
+								</div>
+							</div>
+							<audio controls class="w-full max-w-md">
+								<source src="{{download_url}}" type="audio/mpeg">
+							</audio>
+						</div>
+					{% endif %}
 
-                            {% if caption_html %}
+					{% if caption_html %}
+						<div class="divider font-bold uppercase text-xs opacity-50">Content Information</div>
+						<div class="prose prose-sm max-w-none">
+							<div class="bg-base-300 p-5 rounded-xl border border-white/5 shadow-inner">
+								{{ caption_html|safe }}
+							</div>
+						</div>
+						
+						{% if reply_btns %}
+							<div class="flex flex-wrap justify-center gap-3 mt-6">
+								{% for row in reply_btns %}
+									{% for btn in row %}
+										<a class="btn btn-primary btn-sm rounded-full px-6 shadow-lg" href="{{ btn.url }}" target="_blank">
+											<i class="fas fa-external-link-alt mr-2"></i> {{btn.text}}
+										</a>
+									{% endfor %}
+								{% endfor %}
+							</div>
+						{% endif %}
+					{% endif %}
 
-                                <div class="mx-auto mt-1">
-                                    <div class="flex justify-center text-gray-300 font-mono">
-                                        <p class="text-left w-full rounded p-4 bg-gray-900 shadow-lg"> {{ caption_html|safe }} </p>
-                                    </div>
-                                    {% if reply_btns %}
-                                        <div class="w-full block">
-                                            {% for row in reply_btns %}
-                                                <div class="flex justify-center">
-                                                    {% for btn in row %}
-                                                        <a class="p-2 m-1 flex-1 border rounded bg-white border-blue-500 text-center text-blue-500 hover:bg-blue-500 hover:text-white transition ease-in duration-150" href="{{ btn.url }}" target="_blank"> {{btn.text}} </a>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                            {% endif %}
-
-                        </div>
-                        
-                        <div class="text-center text-white">
-
-                            <a class="rounded p-3 bg-indigo-500 hover:bg-indigo-700 shadow-lg{% if block_downloads %} cursor-not-allowed disabled{% else %}" download="{{name}}{% endif %}" href="{{download_url}}">Download Now! ({{ human_size }})</a>
-
-                        </div>
-                    {% else %}
-                        <div class="mx-auto flex flex-wrap justify-center w-full md:w-3/4 mt-1">
-                            <div class="flex justify-center text-gray-300 font-mono">
-                                <p class="text-left rounded p-4 bg-gray-900 w-full shadow-lg"> {{ text_html|safe }} </p>
-                            </div>
-                            {% if reply_btns %}
-                                <div class="w-full block">
-                                    {% for row in reply_btns %}
-                                        <div class="flex justify-center">
-                                            {% for btn in row %}
-                                                <a class="p-2  m-1 flex-1 border rounded bg-white border-blue-500 text-center text-blue-500 hover:bg-blue-500 hover:text-white transition ease-in duration-150" href="{{btn.url}}" target="_blank"> {{btn.text}} </a>
-                                            {% endfor %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-
-                {% else %}
-                    <h1 class="text-blue-500 text-center text-2xl md:text-3xl lg:text-4xl xl:text-5xl">Ooops...</h1>
-
-                    <p class="text-center text-sm md:text-base lg:text-xl xl:text-2xl font-semibold">
-                        {{ reason }}
-                    </p>
-                {% endif %}
-
-            </div>
+					<div class="divider"></div>
+					<div class="card-actions justify-center pb-4">
+						{% if block_downloads %}
+							<button class="btn btn-lg btn-disabled opacity-50 cursor-not-allowed">
+								<i class="fas fa-ban mr-2"></i> Downloads Blocked
+							</button>
+						{% else %}
+							<a href="{{download_url}}" download="{{name}}" class="btn btn-lg btn-success hover:scale-105 transition-transform duration-200 px-12 shadow-xl">
+								<i class="fas fa-cloud-download-alt mr-2"></i>
+								Download Now! ({{ human_size }})
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		{% else %}
+			<div class="card bg-base-200 shadow-xl max-w-4xl mx-auto border-t-8 border-primary">
+				<div class="card-body">
+					<div class="prose max-w-none">
+						<div class="bg-base-300 p-8 rounded-2xl shadow-inner text-lg">
+							{{ text_html|safe }}
+						</div>
+					</div>
+					{% if reply_btns %}
+						<div class="flex flex-wrap justify-center gap-2 mt-8">
+							{% for row in reply_btns %}
+								{% for btn in row %}
+									<a class="btn btn-primary" href="{{btn.url}}" target="_blank">
+										<i class="fas fa-link mr-2"></i> {{btn.text}}
+									</a>
+								{% endfor %}
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
+	{% else %}
+		<div class="hero min-h-[50vh]">
+			<div class="hero-content text-center">
+				<div class="max-w-md">
+					<div class="text-9xl mb-4">🙄</div>
+					<h2 class="text-4xl font-bold text-error">File Not Found</h2>
+					<p class="py-6 opacity-70">{{ reason }}</p>
+					<a href="/" class="btn btn-outline">Back to Home</a>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+</div>
 
 {% include 'footer.html' %}

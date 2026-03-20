@@ -1,26 +1,29 @@
-</div>
-<footer class="w-full my-4 py-4 bg-gray-300 xl:text-xl">
-	<div class="mx-auto text-center text-black max-w-screen-xl">
-		<a href="https://github.com/odysseusmax/tg-index" target="_blank"> @odysseusmax </a>
-	</div>
+</main>
+
+<footer class="footer footer-center p-6 bg-base-300 text-base-content mt-auto border-t border-base-content/5">
+    <div class="flex flex-col md:flex-row items-center gap-2">
+        <i class="fab fa-telegram text-2xl text-primary hover:scale-110 transition-transform cursor-pointer"></i>
+        
+        <p class="flex items-center gap-1">
+            <a href="https://github.com/odysseusmax/tg-index" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="link link-primary font-semibold no-underline hover:underline inline-flex items-center">
+                <i class="fab fa-github mr-1"></i>@odysseusmax
+            </a>
+            <span class="text-base-content/60">| Telegram Index</span>
+        </p>
+    </div>
 </footer>
+
 <script>
-	function toggleTheme() {
-  element = document.documentElement;
-  if (element.className == "light") {
-    element.className = "dark";
-    localStorage.theme = 'dark';
-    } else {
-      element.className = "light";
-      localStorage.theme = 'light';
-      }
-}
-
-function chatImgAlt() {
-    document.getElementById('chatimg').src = 'https://s3.imgcdn.dev/nWNtu.jpg'
-}
-
+    // Immediate execution to prevent flash of unstyled content (FOUC)
+    (function initTheme() {
+        const savedTheme = localStorage.getItem('theme') || 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
 </script>
-</body>
 
+</body>
 </html>

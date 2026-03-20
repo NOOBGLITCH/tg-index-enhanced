@@ -40,7 +40,9 @@ class LogoView(BaseView):
                 im = Image.new("RGB", (W, H), color)
                 draw = ImageDraw.Draw(im)
                 font = ImageFont.truetype("arial.ttf", 50)
-                w, h = draw.textsize(chat_name, font=font)
+                bbox = draw.textbbox((0, 0), chat_name, font=font)
+                w = bbox[2] - bbox[0]
+                h = bbox[3] - bbox[1]
                 draw.text(
                     ((W - w) / 2, (H - h) / 2), chat_name, fill="white", font=font
                 )
