@@ -23,6 +23,15 @@ def get_required_env(key: str) -> str:
     return value
 
 
+def get_bool_env(key: str, default: bool = False) -> bool:
+    value = os.environ.get(key, "").strip().lower()
+    if value in ("1", "true", "yes", "on"):
+        return True
+    if value in ("0", "false", "no", "off"):
+        return False
+    return default
+
+
 port = get_int_env("PORT", "8080")
 if not 1 <= port <= 65535:
     print("PORT must be between 1 and 65535")
@@ -64,8 +73,8 @@ if index_settings_str and not index_settings:
 session_string = get_required_env("SESSION_STRING")
 
 host = os.environ.get("HOST", "0.0.0.0")
-debug = bool(os.environ.get("DEBUG"))
-block_downloads = bool(os.environ.get("BLOCK_DOWNLOADS"))
+debug = get_bool_env("DEBUG")
+block_downloads = get_bool_env("BLOCK_DOWNLOADS")
 results_per_page = get_int_env("RESULTS_PERPAGE", "20", 1, 500)
 
 logo_folder = Path(os.path.join(tempfile.gettempdir(), "logo"))
@@ -90,3 +99,12 @@ if authenticated:
             "\n\nSECRET_KEY must be exactly 32 characters when authentication is enabled"
         )
         sys.exit(1)
+
+MAX_CONCURRENT_REQUESTS = get_int_env("MAX_CONCURRENT_REQUESTS", "50", 1, 200)
+CACHE_MAX_SIZE = get_int_env("CACHE_MAX_SIZE", "100", 10, 1000)
+CACHE_TTL = get_int_env("CACHE_TTL", "3600", 60, 86400)
+THUMBNAIL_CACHE_SIZE = get_int_env("THUMBNAIL_CACHE_SIZE", "500", 50, 2000)
+LOGO_CACHE_SIZE = get_int_env("LOGO_CACHE_SIZE", "500", 50, 2000)
+REQUEST_TIMEOUT = get_int_env("REQUEST_TIMEOUT", "30", 5, 300)
+ENABLE_COMPRESSION = get_bool_env("ENABLE_COMPRESSION", True)
+ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "*")

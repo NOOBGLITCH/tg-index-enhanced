@@ -73,7 +73,7 @@
 				titleEl.textContent = original;
 				if (term) {
 					const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-					titleEl.innerHTML = original.replace(regex, '<mark class="bg-warning/50 rounded px-0.5">$1</mark>');
+					titleEl.innerHTML = original.replace(regex, '<mark class="bg-yellow-500/70 text-black font-bold rounded px-0.5">$1</mark>');
 				}
 				visibleCount++;
 			} else {

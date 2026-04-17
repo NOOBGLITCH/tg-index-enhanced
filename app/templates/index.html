@@ -99,8 +99,16 @@
 		{% set badge_class = 'badge-error' %}
 		{% set badge_icon = 'android' %}
 	{% endif %}
+	{% set is_video = item.media_type == 'video' or 'video' in item.mime_type or ext in ['mp4','mkv','avi','mov','webm','ts','3gp'] %}
+	{% set is_audio = item.media_type == 'audio' or 'audio' in item.mime_type or ext in ['mp3','wav','ogg','m4a','flac','aac'] %}
+	{% set is_image = item.media_type == 'image' or 'image' in item.mime_type or ext in ['jpg','jpeg','png','gif','webp','svg','bmp'] %}
+	{% set is_pdf = item.media_type == 'pdf' or 'pdf' in item.mime_type or ext == 'pdf' %}
 	<div class="item-card card card-hover bg-base-100 shadow-md border border-transparent hover:border-primary/30 animate-fade-in overflow-hidden"
-		 style="animation-delay: {{ loop.index0 * 0.02 }}s">
+		 style="animation-delay: {{ loop.index0 * 0.02 }}s"
+		 data-is-video="{{ 'true' if is_video else 'false' }}"
+		 data-download-url="{{ item.download }}"
+		 data-thumbnail="{{ item.thumbnail }}"
+		 data-mime-type="{{ item.mime_type }}">
 
 		{% if item.media %}
 		<a href="{{item.url}}" class="block">
@@ -117,32 +125,25 @@
 				<div class="absolute bottom-2 left-2 badge {{badge_class}} badge-sm text-[10px] gap-1">
 					<span class="material-symbols-outlined text-[10px]">{{badge_icon}}</span>{{ext|upper if ext else 'FILE'}}
 				</div>
-				{% if 'video' in item.mime_type or ext in ['mp4','mkv','avi','mov','webm'] %}
-				<div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
-					<div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-						<span class="material-symbols-outlined text-gray-800 text-xl ml-0.5">play_arrow</span>
-					</div>
-				</div>
-				{% endif %}
 			</figure>
 		</a>
 		<div class="card-body p-3 min-h-0">
 			<p class="text-xs text-base-content/70 line-clamp-2 break-words leading-tight mb-2 searchable-text" data-original="{{item.insight}}">{{item.insight}}</p>
 
 			<div class="flex items-center justify-center gap-2">
-				{% if 'video' in item.mime_type or ext in ['mp4','mkv','avi','mov','webm'] %}
+				{% if is_video %}
 				<a href="{{item.url}}" title="Play" class="btn btn-xs btn-circle btn-info">
 					<span class="material-symbols-outlined text-sm">play_arrow</span>
 				</a>
-				{% elif 'audio' in item.mime_type or ext in ['mp3','wav','ogg','m4a'] %}
+				{% elif is_audio %}
 				<a href="{{item.url}}" title="Play Audio" class="btn btn-xs btn-circle btn-info">
 					<span class="material-symbols-outlined text-sm">music_note</span>
 				</a>
-				{% elif 'image' in item.mime_type or ext in ['jpg','jpeg','png','gif','webp','svg'] %}
+				{% elif is_image %}
 				<a href="{{item.url}}" title="View" class="btn btn-xs btn-circle btn-primary">
 					<span class="material-symbols-outlined text-sm">image</span>
 				</a>
-				{% elif 'pdf' in item.mime_type or ext == 'pdf' %}
+				{% elif is_pdf %}
 				<a href="{{item.url}}" title="View PDF" class="btn btn-xs btn-circle btn-error">
 					<span class="material-symbols-outlined text-sm">picture_as_pdf</span>
 				</a>
@@ -226,7 +227,7 @@
 	function highlightText(text, term) {
 		if (!term) return text;
 		const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-		return text.replace(regex, '<mark class="bg-warning/50 rounded px-0.5">$1</mark>');
+		return text.replace(regex, '<mark class="bg-yellow-500/70 text-black font-bold rounded px-0.5">$1</mark>');
 	}
 
 	function performSearch(term) {

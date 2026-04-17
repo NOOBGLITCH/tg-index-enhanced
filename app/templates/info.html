@@ -98,9 +98,45 @@ if(typeof pdfjsLib!=='undefined'){pdfjsLib.getDocument("{{download_url}}").promi
 
                 {% elif media_type == 'video' %}
                 <div class="p-4">
-                    <div id="jwplayer"></div>
-                    <script>jwplayer("jwplayer").setup({file:"{{download_url}}",image:"{{thumbnail}}",width:"100%",aspectratio:"16:9",autostart:false,controls:true,skin:{name:"netflix"},abouttext:"Telegram Index",aboutlink:window.location.origin,logo:{file:"",link:""}}).on('ready',function(){var d='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';this.addButton(d,"Download",function(){window.open("{{download_url}}")},"dl")})</script>
+                    <div id="video-wrapper" class="player-container-netflix">
+                        <div id="jwplayer-container"></div>
+                    </div>
                 </div>
+                <script>
+                (function() {
+                    if (typeof jwplayer === 'undefined') {
+                        document.getElementById('jwplayer-container').innerHTML = '<video class="w-full aspect-video" controls poster="{{thumbnail}}"><source src="{{download_url}}" type="{{mime_type or 'video/mp4'}}">Your browser does not support video.</video>';
+                        return;
+                    }
+                    jwplayer('jwplayer-container').setup({
+                        file: '{{download_url}}',
+                        image: '{{thumbnail}}',
+                        width: '100%',
+                        aspectratio: '16:9',
+                        autostart: false,
+                        volume: 100,
+                        mute: false,
+                        controls: true,
+                        controlbar: {
+                            position: 'bottom',
+                            idleTimer: 3000
+                        },
+                        skin: { name: 'netflix' },
+                        abouttext: 'Telegram Index',
+                        aboutlink: window.location.origin,
+                        logo: { file: '', link: '' },
+                        sharing: {
+                            links: [window.location.href]
+                        },
+                        playbackRateControls: [0.5, 0.75, 1, 1.25, 1.5, 2],
+                        captions: {
+                            backgroundOpacity: 80,
+                            edgeStyle: 'none'
+                        },
+                        generateSdkBundle: true
+                    });
+                })();
+                </script>
 
                 {% elif media_type == 'audio' %}
                 <div class="p-6 text-center">
@@ -127,9 +163,11 @@ if(typeof pdfjsLib!=='undefined'){pdfjsLib.getDocument("{{download_url}}").promi
 
                 <div class="px-6 py-4 border-t border-base-300 flex flex-wrap gap-3 justify-center">
                     {% if not block_downloads %}
-                    <a class="btn btn-success btn-lg" href="{{download_url}}" download="{{name}}"><span class="material-symbols-outlined">download</span>Download ({{human_size}})</a>
-                    {% endif %}
                     <a class="btn btn-outline btn-lg" href="javascript:history.back()"><span class="material-symbols-outlined">arrow_back</span>Back</a>
+                    <a class="btn btn-success btn-lg" href="{{download_url}}" download="{{name}}"><span class="material-symbols-outlined">download</span>Download ({{human_size}})</a>
+                    {% else %}
+                    <a class="btn btn-outline btn-lg" href="javascript:history.back()"><span class="material-symbols-outlined">arrow_back</span>Back</a>
+                    {% endif %}
                 </div>
 
             </div>

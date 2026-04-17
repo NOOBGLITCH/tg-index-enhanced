@@ -1,8 +1,12 @@
 aiohttp>=3.9.0
 aiohttp-jinja2>=0.20.0
+aiohttp-session[secure]>=2.12.0
 telethon>=1.35.0
 cryptg>=0.10
 pillow>=10.0.0
-aiohttp_session[secure]>=2.12.0
 python-dotenv>=1.0.0
 markupsafe>=2.1.0
+psutil>=5.9.0
+cchardet>=2.1.7
+aiodns>=3.1.0
+Brotli>=1.1.0

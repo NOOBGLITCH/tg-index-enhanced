@@ -14,6 +14,31 @@ from .base import BaseView
 
 log = logging.getLogger(__name__)
 
+VIDEO_EXTS = frozenset(
+    ("mp4", "mkv", "avi", "mov", "webm", "ts", "3gp", "m4v", "flv", "wmv")
+)
+AUDIO_EXTS = frozenset(("mp3", "wav", "ogg", "m4a", "flac", "aac", "wma", "aiff"))
+IMAGE_EXTS = frozenset(
+    ("jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "ico", "tiff")
+)
+
+
+def _get_media_type(mime_type: str, filename: str) -> str:
+    ext = ""
+    if "." in filename:
+        ext = filename.rsplit(".", 1)[-1].lower()
+
+    mime_lower = mime_type.lower()
+    if any(m in mime_lower for m in ("video",)) or ext in VIDEO_EXTS:
+        return "video"
+    if any(m in mime_lower for m in ("audio",)) or ext in AUDIO_EXTS:
+        return "audio"
+    if any(m in mime_lower for m in ("image",)) or ext in IMAGE_EXTS:
+        return "image"
+    if "pdf" in mime_lower or ext == "pdf":
+        return "pdf"
+    return "file"
+
 
 class InfoView(BaseView):
     @aiohttp_jinja2.template("info.html")
@@ -65,16 +90,7 @@ class InfoView(BaseView):
             mime_type = getattr(message.file, "mime_type", "") or ""
             file_name = get_file_name(message)
             human_size = get_human_size(message.file.size)
-
-            media_type = "file"
-            if "video/" in mime_type:
-                media_type = "video"
-            elif "audio/" in mime_type:
-                media_type = "audio"
-            elif "image/" in mime_type:
-                media_type = "image"
-            elif "pdf" in mime_type.lower():
-                media_type = "pdf"
+            media_type = _get_media_type(mime_type, file_name)
 
             download_url = (
                 "#" if block_downloads else f"/{alias_id}/{file_id}/{file_name}"

@@ -14,6 +14,142 @@
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 	<link href="https://mini.allinonereborn.fun/jiotv-inn/app/assets/css/player.css" rel="stylesheet" type="text/css" />
 	<script src="https://content.jwplatform.com/libraries/IDzF9Zmk.js"></script>
+
+	<style>
+		/* Netflix-inspired Player Theme */
+		.jwplayer.jw-theme-netflix {
+			--netflix-red: #E50914;
+			--netflix-black: #141414;
+			--netflix-dark: #181818;
+			--netflix-gray: #808080;
+			--netflix-white: #FFFFFF;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-controlbar {
+			background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%) !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-progress {
+			background: var(--netflix-red) !important;
+			height: 4px !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-rail {
+			background: rgba(255,255,255,0.3) !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-knob {
+			background: var(--netflix-red) !important;
+			width: 14px !important;
+			height: 14px !important;
+			border: 2px solid white !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-button {
+			color: white !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-button:hover {
+			color: var(--netflix-red) !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-time {
+			color: var(--netflix-gray) !important;
+			font-family: 'Inter', sans-serif !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-tooltip-time {
+			background: var(--netflix-dark) !important;
+			color: white !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-menu {
+			background: var(--netflix-dark) !important;
+			border: 1px solid #333 !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-menu-item {
+			color: white !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-menu-item:hover,
+		.jwplayer.jw-theme-netflix .jw-menu-item.jw-active-option {
+			background: var(--netflix-red) !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-dock-button {
+			background: rgba(0,0,0,0.6) !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-dock-button:hover {
+			background: var(--netflix-red) !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-slider-horizontal:hover .jw-knob {
+			transform: scale(1.2);
+		}
+
+		/* Netflix-style center play button */
+		.jwplayer.jw-theme-netflix .jw-display-icon-container {
+			background: rgba(0,0,0,0.7) !important;
+			border-radius: 50% !important;
+			transition: all 0.3s ease !important;
+		}
+
+		.jwplayer.jw-theme-netflix .jw-display-icon-container:hover {
+			background: var(--netflix-red) !important;
+			transform: scale(1.1);
+		}
+
+		/* Quality selector Netflix style */
+		.jwplayer.jw-theme-netflix .jw-quality-menu {
+			background: var(--netflix-dark) !important;
+		}
+
+		/* Logo styling */
+		.jwplayer.jw-theme-netflix .jw-logo {
+			top: 10px !important;
+			right: 10px !important;
+		}
+
+		/* Fullscreen styling */
+		.jwplayer.jw-theme-netflix.jw-fullscreen .jw-top {
+			background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent) !important;
+		}
+
+		/* Buffering spinner */
+		.jwplayer.jw-theme-netflix .jw-spinner {
+			border: 3px solid rgba(255,255,255,0.3) !important;
+			border-top-color: var(--netflix-red) !important;
+		}
+
+		/* Caption styling */
+		.jwplayer.jw-theme-netflix .jw-captions {
+			font-family: 'Inter', sans-serif !important;
+			font-size: 1.1em !important;
+			text-shadow: 2px 2px 2px rgba(0,0,0,0.8) !important;
+		}
+
+		/* Video player container Netflix style */
+		.player-container-netflix {
+			position: relative;
+			background: #000;
+			border-radius: 8px;
+			overflow: hidden;
+			box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+		}
+
+		.player-container-netflix::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: linear-gradient(90deg, var(--netflix-red) 0%, #ff6b6b 50%, var(--netflix-red) 100%);
+			z-index: 10;
+		}
+	</style>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 	<style>
