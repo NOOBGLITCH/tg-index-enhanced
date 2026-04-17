@@ -1,170 +1,182 @@
 {% include 'header.html' %}
 
 <style>
-    /* Custom Minion-Themed Overrides */
-    .text-primary { color: #f9d71c !important; } /* Minion Yellow */
-    .btn-primary { background-color: #f9d71c !important; color: #333 !important; border: none; }
-    .btn-primary:hover { background-color: #e5c619 !important; }
-    .btn-success { background-color: #2b5b8e !important; border: none; color: white; } /* Denim Blue */
-    .btn-success:hover { background-color: #1e3f63 !important; }
-    .bg-base-300 { background-color: #222 !important; } /* Darker contrast for 3D feel */
-    .card { border: 4px solid #d1d1d1; } /* Silver Goggle Frame Effect */
+.gallery-container { position: relative; }
+.gallery-img { max-height: 80vh; object-fit: contain; }
+.gallery-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,0.5); color: white; border: none;
+    width: 50px; height: 50px; border-radius: 50%;
+    cursor: pointer; font-size: 20px; transition: 0.3s;
+}
+.gallery-nav:hover { background: rgba(0,0,0,0.8); }
+.gallery-nav.prev { left: 20px; }
+.gallery-nav.next { right: 20px; }
+.gallery-close {
+    position: absolute; top: 20px; right: 20px;
+    background: rgba(0,0,0,0.5); color: white; border: none;
+    width: 40px; height: 40px; border-radius: 50%;
+    cursor: pointer; font-size: 18px; transition: 0.3s;
+}
+.gallery-close:hover { background: rgba(0,0,0,0.8); }
+#lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
+#lightbox.active { display: flex; }
 </style>
 
-<div class="container mx-auto px-4 py-8">
-	{% if found %}
-		{% if media %}
-			<div class="text-center mb-8">
-				<h1 class="text-3xl md:text-4xl font-bold text-primary drop-shadow-md">
-					<i class="fas fa-file-download mr-2"></i>Download {{name}}
-				</h1>
-			</div>
-
-			<div class="card bg-base-200 shadow-2xl max-w-4xl mx-auto overflow-hidden">
-				<div class="card-body">
-					{% if media.image %}
-						<figure class="flex justify-center">
-							<img class="rounded-lg shadow-lg max-h-[70vh] border-4 border-white" src="{{thumbnail}}" alt="{{name}}">
-						</figure>
-					{% elif media.video %}
-						<div id="video-error" class="hidden alert alert-error mt-4 mb-4">
-							<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-							<span>Video could not be played!</span>
-						</div>
-
-						<div class="mockup-window border bg-base-300 shadow-inner">
-							<div id="jwplayer"></div>
-						</div>
-
-						<script>
-							const playerInstance = jwplayer("jwplayer").setup({
-								"file": "{{download_url}}",
-								"image": "{{thumbnail}}",
-								"width": "100%",
-								"aspectratio": "16:9",
-								"autostart": false,
-								"controls": true,
-								"playbackRateControls": true,
-								"sharing": true,
-								mute: false,
-								volume: 100,
-								skin: { name: "netflix" },
-								"displaytitle": true,
-								"displaydescription": true,
-								"abouttext": "Telegram Index",
-								"aboutlink": window.location.origin
-							});
-							
-							// SVG Icons for Control Bar
-							const iconPrev10 = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>';
-							const iconNext10 = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>';
-							const iconDownload = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
-							
-							// 1. Rewind 10s
-							playerInstance.addButton(iconPrev10, "Back 10s", function() {
-								playerInstance.seek(Math.max(0, playerInstance.getPosition() - 10));
-							}, "prev10-btn");
-
-							// 2. Forward 10s
-							playerInstance.addButton(iconNext10, "Forward 10s", function() {
-								playerInstance.seek(playerInstance.getPosition() + 10);
-							}, "next10-btn");
-
-							// 3. Download
-							playerInstance.addButton(iconDownload, "Download Video", function() {
-								const anchor = document.createElement("a");
-								anchor.href = "{{download_url}}";
-								anchor.download = "{{name}}";
-								anchor.click();
-							}, "download-video-btn");
-							
-							playerInstance.on('error', function() {
-								document.getElementById('video-error').classList.remove('hidden');
-							});
-						</script>
-					{% elif media.audio %}
-						<div class="flex flex-col items-center gap-6 py-4">
-							<div class="avatar">
-								<div class="w-48 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 shadow-2xl">
-									<img src="{{thumbnail}}" alt="{{name}}" />
-								</div>
-							</div>
-							<audio controls class="w-full max-w-md">
-								<source src="{{download_url}}" type="audio/mpeg">
-							</audio>
-						</div>
-					{% endif %}
-
-					{% if caption_html %}
-						<div class="divider font-bold uppercase text-xs opacity-50">Content Information</div>
-						<div class="prose prose-sm max-w-none">
-							<div class="bg-base-300 p-5 rounded-xl border border-white/5 shadow-inner">
-								{{ caption_html|safe }}
-							</div>
-						</div>
-						
-						{% if reply_btns %}
-							<div class="flex flex-wrap justify-center gap-3 mt-6">
-								{% for row in reply_btns %}
-									{% for btn in row %}
-										<a class="btn btn-primary btn-sm rounded-full px-6 shadow-lg" href="{{ btn.url }}" target="_blank">
-											<i class="fas fa-external-link-alt mr-2"></i> {{btn.text}}
-										</a>
-									{% endfor %}
-								{% endfor %}
-							</div>
-						{% endif %}
-					{% endif %}
-
-					<div class="divider"></div>
-					<div class="card-actions justify-center pb-4">
-						{% if block_downloads %}
-							<button class="btn btn-lg btn-disabled opacity-50 cursor-not-allowed">
-								<i class="fas fa-ban mr-2"></i> Downloads Blocked
-							</button>
-						{% else %}
-							<a href="{{download_url}}" download="{{name}}" class="btn btn-lg btn-success hover:scale-105 transition-transform duration-200 px-12 shadow-xl">
-								<i class="fas fa-cloud-download-alt mr-2"></i>
-								Download Now! ({{ human_size }})
-							</a>
-						{% endif %}
-					</div>
-				</div>
-			</div>
-		{% else %}
-			<div class="card bg-base-200 shadow-xl max-w-4xl mx-auto border-t-8 border-primary">
-				<div class="card-body">
-					<div class="prose max-w-none">
-						<div class="bg-base-300 p-8 rounded-2xl shadow-inner text-lg">
-							{{ text_html|safe }}
-						</div>
-					</div>
-					{% if reply_btns %}
-						<div class="flex flex-wrap justify-center gap-2 mt-8">
-							{% for row in reply_btns %}
-								{% for btn in row %}
-									<a class="btn btn-primary" href="{{btn.url}}" target="_blank">
-										<i class="fas fa-link mr-2"></i> {{btn.text}}
-									</a>
-								{% endfor %}
-							{% endfor %}
-						</div>
-					{% endif %}
-				</div>
-			</div>
-		{% endif %}
-	{% else %}
-		<div class="hero min-h-[50vh]">
-			<div class="hero-content text-center">
-				<div class="max-w-md">
-					<div class="text-9xl mb-4">🙄</div>
-					<h2 class="text-4xl font-bold text-error">File Not Found</h2>
-					<p class="py-6 opacity-70">{{ reason }}</p>
-					<a href="/" class="btn btn-outline">Back to Home</a>
-				</div>
-			</div>
-		</div>
-	{% endif %}
+<div id="lightbox" onclick="closeLightbox(event)">
+    <button class="gallery-close" onclick="closeLightbox(event)"><span class="material-symbols-outlined">close</span></button>
+    <button class="gallery-nav prev" onclick="prevImage(event)"><span class="material-symbols-outlined">chevron_left</span></button>
+    <img id="lightbox-img" class="gallery-img" src="" alt="">
+    <button class="gallery-nav next" onclick="nextImage(event)"><span class="material-symbols-outlined">chevron_right</span></button>
+    <div id="lightbox-counter" style="color:white;margin-top:15px;font-size:14px;"></div>
 </div>
+
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    {% if found %}
+    <div class="animate-fade-in">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-primary flex items-center justify-center gap-3">
+                {% if media_type == 'pdf' %}<span class="material-symbols-outlined">picture_as_pdf</span>
+                {% elif media_type == 'video' %}<span class="material-symbols-outlined">video_file</span>
+                {% elif media_type == 'audio' %}<span class="material-symbols-outlined">music_note</span>
+                {% elif media_type == 'image' %}<span class="material-symbols-outlined">image</span>
+                {% else %}<span class="material-symbols-outlined">insert_drive_file</span>{% endif %}
+                <span class="line-clamp-1">{{name}}</span>
+            </h1>
+        </div>
+
+        <div class="card bg-base-100 shadow-2xl border border-base-300">
+            <div class="card-body p-0">
+
+                {% if media_type == 'image' %}
+                <div class="p-4">
+                    <div class="gallery-container text-center bg-base-200 rounded-xl overflow-hidden" style="min-height:400px;display:flex;align-items:center;justify-content:center;">
+                        <img src="{{download_url}}" alt="{{name}}" class="gallery-img rounded-lg" style="max-height:70vh;" onclick="openLightbox()">
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2 justify-center">
+                        <button onclick="openLightbox()" class="btn btn-outline btn-sm gap-2"><span class="material-symbols-outlined">fullscreen</span> Fullscreen</button>
+                        {% if not block_downloads %}
+                        <a class="btn btn-success btn-sm gap-2" href="{{download_url}}" download="{{name}}"><span class="material-symbols-outlined">download</span> Download</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% elif media_type == 'pdf' %}
+                <div class="w-full">
+                    <div class="bg-base-200 px-4 py-3 border-b border-base-300 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <button onclick="pdfZoomOut()" class="btn btn-sm btn-ghost"><span class="material-symbols-outlined">zoom_out</span></button>
+                            <span id="pdf-zoom" class="text-sm font-medium w-14 text-center">100%</span>
+                            <button onclick="pdfZoomIn()" class="btn btn-sm btn-ghost"><span class="material-symbols-outlined">zoom_in</span></button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="pdfPrev()" class="btn btn-sm btn-ghost" id="pdf-prev-btn" disabled><span class="material-symbols-outlined">chevron_left</span></button>
+                            <span class="text-sm"><input type="number" id="pdf-page" class="input input-bordered input-sm w-14 text-center" value="1" min="1"> / <span id="pdf-total">1</span></span>
+                            <button onclick="pdfNext()" class="btn btn-sm btn-ghost" id="pdf-next-btn" disabled><span class="material-symbols-outlined">chevron_right</span></button>
+                        </div>
+                        {% if not block_downloads %}
+                        <a class="btn btn-sm btn-success" href="{{download_url}}" download="{{name}}"><span class="material-symbols-outlined">download</span>Download</a>
+                        {% endif %}
+                    </div>
+                    <div class="bg-base-300" style="height:calc(100vh - 320px);min-height:400px;">
+                        <div id="pdf-loading" class="flex items-center justify-center h-full"><div class="text-center"><div class="loading loading-spinner loading-lg text-primary mb-2"></div><p>Loading PDF...</p></div></div>
+                        <canvas id="pdf-canvas" class="mx-auto block" style="display:none;"></canvas>
+                        <div id="pdf-error" class="hidden flex items-center justify-center h-full text-center p-4"><div><span class="material-symbols-outlined text-4xl text-error mb-2">warning</span><p>Failed to load PDF</p></div></div>
+                    </div>
+                </div>
+                <script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+var pdf=null,page=1,total=1,scale=1.5,canvas=document.getElementById('pdf-canvas'),ctx=canvas&&canvas.getContext('2d');
+function render(n){pdf&&pdf.getPage(n).then(p=>{var v=p.getViewport({scale}),c=document.getElementById('pdf-canvas');c.height=v.height;c.width=v.width;c.style.display='block';p.render({canvasContext:ctx,viewport:v}).promise.then(()=>{document.getElementById('pdf-loading').style.display='none';document.getElementById('pdf-error').style.display='none'}).catch(()=>{document.getElementById('pdf-error').style.display='flex'});}).catch(()=>{document.getElementById('pdf-error').style.display='flex'});document.getElementById('pdf-total').textContent=total;document.getElementById('pdf-page').value=n;document.getElementById('pdf-prev-btn').disabled=n<=1;document.getElementById('pdf-next-btn').disabled=n>=total}
+function pdfPrev(){if(page>1){page--;render(page)}}
+function pdfNext(){if(page<total){page++;render(page)}}
+function pdfZoomIn(){scale+=0.25;if(scale>4)scale=4;document.getElementById('pdf-zoom').textContent=Math.round(scale*100)+'%';render(page)}
+function pdfZoomOut(){scale-=0.25;if(scale<0.5)scale=0.5;document.getElementById('pdf-zoom').textContent=Math.round(scale*100)+'%';render(page)}
+document.getElementById('pdf-page')&&document.getElementById('pdf-page').addEventListener('change',e=>{var n=parseInt(e.target.value);if(n>=1&&n<=total){page=n;render(page)}});
+if(typeof pdfjsLib!=='undefined'){pdfjsLib.getDocument("{{download_url}}").promise.then(p=>{pdf=p;total=p.numPages;page=1;render(page)}).catch(()=>{document.getElementById('pdf-loading').style.display='none';document.getElementById('pdf-error').style.display='flex'})}
+                </script>
+
+                {% elif media_type == 'video' %}
+                <div class="p-4">
+                    <div id="jwplayer"></div>
+                    <script>jwplayer("jwplayer").setup({file:"{{download_url}}",image:"{{thumbnail}}",width:"100%",aspectratio:"16:9",autostart:false,controls:true,skin:{name:"netflix"},abouttext:"Telegram Index",aboutlink:window.location.origin,logo:{file:"",link:""}}).on('ready',function(){var d='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';this.addButton(d,"Download",function(){window.open("{{download_url}}")},"dl")})</script>
+                </div>
+
+                {% elif media_type == 'audio' %}
+                <div class="p-6 text-center">
+                    {% if thumbnail %}<img class="w-32 h-32 mx-auto rounded-full shadow-xl mb-4" src="{{thumbnail}}" alt="">{% endif %}
+                    <audio controls class="w-full max-w-md mx-auto"><source src="{{download_url}}">Your browser doesn't support audio.</audio>
+                </div>
+
+                {% elif media_type == 'text' %}
+                <div class="p-6"><div class="bg-base-200 p-6 rounded-xl prose max-w-none">{{text_html|safe}}</div></div>
+
+                {% else %}
+                <div class="p-6 text-center"><span class="material-symbols-outlined text-6xl text-base-content/30 mb-4">insert_drive_file</span><p>{{name}}</p></div>
+                {% endif %}
+
+                {% if caption_html %}
+                <div class="px-6 py-4 border-t border-base-300"><div class="text-sm text-base-content/70">{{caption_html|safe}}</div></div>
+                {% endif %}
+
+                {% if reply_btns and reply_btns|length > 0 %}
+                <div class="px-6 py-4 border-t border-base-300 flex flex-wrap gap-2 justify-center">
+                    {% for btn in reply_btns %}<a class="btn btn-primary btn-sm" href="{{btn.url}}" target="_blank"><span class="material-symbols-outlined">link</span>{{btn.text}}</a>{% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="px-6 py-4 border-t border-base-300 flex flex-wrap gap-3 justify-center">
+                    {% if not block_downloads %}
+                    <a class="btn btn-success btn-lg" href="{{download_url}}" download="{{name}}"><span class="material-symbols-outlined">download</span>Download ({{human_size}})</a>
+                    {% endif %}
+                    <a class="btn btn-outline btn-lg" href="javascript:history.back()"><span class="material-symbols-outlined">arrow_back</span>Back</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="hero py-20">
+        <div class="hero-content text-center">
+            <div class="max-w-md">
+                <div class="text-7xl text-error/50 mb-4"><span class="material-symbols-outlined">error</span></div>
+                <h2 class="text-4xl font-bold text-error mb-4">Oops!</h2>
+                <p class="text-lg text-base-content/70 mb-6">{{reason}}</p>
+                <div class="flex gap-3 justify-center">
+                    <a class="btn btn-primary" href="/"><span class="material-symbols-outlined">home</span>Home</a>
+                    <a class="btn btn-outline" href="javascript:history.back()"><span class="material-symbols-outlined">arrow_back</span>Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function openLightbox() {
+    var img = document.querySelector('.gallery-img');
+    if (img) {
+        document.getElementById('lightbox-img').src = img.src;
+        document.getElementById('lightbox').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+function closeLightbox(e) {
+    if (e.target.id === 'lightbox' || e.target.closest('.gallery-close')) {
+        document.getElementById('lightbox').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+function prevImage(e) { e.stopPropagation(); }
+function nextImage(e) { e.stopPropagation(); }
+document.addEventListener('keydown', function(e) {
+    if (document.getElementById('lightbox').classList.contains('active')) {
+        if (e.key === 'Escape') closeLightbox({target: {id: 'lightbox'}});
+        if (e.key === 'ArrowLeft') prevImage(e);
+        if (e.key === 'ArrowRight') nextImage(e);
+    }
+});
+</script>
 
 {% include 'footer.html' %}

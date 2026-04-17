@@ -1,95 +1,87 @@
 {% include 'header.html' %}
 
-<div class="hero py-12 bg-base-200 rounded-box">
-	<div class="hero-content text-center">
-		<div class="max-w-2xl">
-			<h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-				<i class="fas fa-bolt mr-2"></i>On-The-Go Indexing
-			</h1>
-			<p class="py-6 text-base-content/70">
-				Index any public Telegram channel or group on the go with just its username. 
-				Get instant access to media files and messages.
-			</p>
-		</div>
-	</div>
+<div class="text-center py-8 animate-fade-in">
+	<h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-4">
+		<span class="material-symbols-outlined mr-3">bolt</span>On-The-Go Indexing
+	</h1>
+	<p class="text-base-content/70 text-lg max-w-2xl mx-auto">
+		Index any public Telegram channel or group instantly with just a username.
+		Access media files and search through messages on the fly.
+	</p>
 </div>
 
-<div class="card bg-base-200 shadow-xl max-w-xl mx-auto mt-8">
-	<div class="card-body">
+<div class="card bg-base-100 shadow-2xl border border-base-300 max-w-lg mx-auto mt-8 animate-fade-in" style="animation-delay: 0.1s">
+	<div class="card-body p-8">
 		{% if error %}
-		<div class="alert alert-error mb-4">
-			<i class="fas fa-exclamation-circle"></i>
+		<div class="alert alert-error mb-6 shadow-lg">
+			<span class="material-symbols-outlined">error</span>
 			<span>{{error}}</span>
 		</div>
-		<script>
-			setTimeout(function(){
-				document.querySelector('.alert').classList.add('hidden');
-			}, 7000);
-		</script>
 		{% endif %}
 
-		<form class="flex flex-col gap-4" action="/otg" method="POST">
+		<form class="space-y-6" action="/otg" method="POST">
 			<div class="form-control">
-				<label class="label" for="id">
+				<label class="label" for="username_input">
 					<span class="label-text font-semibold">
-						<i class="fas fa-user mr-2"></i>
+						<span class="material-symbols-outlined mr-2">alternate_email</span>
 						Telegram Username
 					</span>
 				</label>
 				<div class="join w-full">
-					<span class="join-item btn btn-disabled">
+					<span class="join-item btn btn-disabled bg-base-300">
 						@
 					</span>
-					<input 
-						id="id" 
-						name="id" 
-						type="text" 
-						class="input input-bordered join-item flex-1 focus:input-primary" 
-						placeholder="Enter username without @" 
-						required>
+					<input id="username_input"
+						name="id"
+						type="text"
+						class="input input-bordered join-item flex-1 focus:input-primary bg-base-200/50 rounded-r-xl"
+						placeholder="channel_username"
+						required
+						autocomplete="off">
 				</div>
 				<label class="label">
-					<span class="label-text-alt text-base-content/60">e.g., for t.me/username enter: username</span>
+					<span class="label-text-alt text-base-content/50">
+						Enter the username without the @ symbol
+					</span>
 				</label>
 			</div>
 
-			<div class="form-control mt-4">
-				<button type="submit" class="btn btn-primary">
-					<i class="fas fa-search mr-2"></i>
-					Index Channel
-				</button>
-			</div>
+			<button type="submit" class="btn btn-primary btn-block rounded-xl h-12 text-base gap-2">
+				<span class="material-symbols-outlined">search</span>
+				Index Channel
+			</button>
 		</form>
 	</div>
 </div>
 
-<!-- Features Section -->
-<div class="grid md:grid-cols-3 gap-4 mt-12 max-w-4xl mx-auto">
-	<div class="card bg-base-200 shadow">
-		<div class="card-body items-center text-center">
-			<div class="btn btn-circle btn-primary">
-				<i class="fas fa-bolt"></i>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+	<div class="card bg-base-100 shadow-lg border border-base-300 animate-fade-in" style="animation-delay: 0.2s">
+		<div class="card-body items-center text-center p-8">
+			<div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 shadow-lg">
+				<span class="material-symbols-outlined text-white text-2xl">bolt</span>
 			</div>
-			<h3 class="font-bold mt-4">Instant Access</h3>
-			<p class="text-sm text-base-content/60">Get immediate access to public channel content</p>
+			<h3 class="card-title font-bold">Instant Access</h3>
+			<p class="text-base-content/60">Get immediate access to public channel content</p>
 		</div>
 	</div>
-	<div class="card bg-base-200 shadow">
-		<div class="card-body items-center text-center">
-			<div class="btn btn-circle btn-secondary">
-				<i class="fas fa-images"></i>
+
+	<div class="card bg-base-100 shadow-lg border border-base-300 animate-fade-in" style="animation-delay: 0.3s">
+		<div class="card-body items-center text-center p-8">
+			<div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center mb-4 shadow-lg">
+				<span class="material-symbols-outlined text-white text-2xl">download</span>
 			</div>
-			<h3 class="font-bold mt-4">Media Download</h3>
-			<p class="text-sm text-base-content/60">Download photos, videos, and files easily</p>
+			<h3 class="card-title font-bold">Media Download</h3>
+			<p class="text-base-content/60">Download photos, videos, and files easily</p>
 		</div>
 	</div>
-	<div class="card bg-base-200 shadow">
-		<div class="card-body items-center text-center">
-			<div class="btn btn-circle btn-accent">
-				<i class="fab fa-telegram-plane"></i>
+
+	<div class="card bg-base-100 shadow-lg border border-base-300 animate-fade-in" style="animation-delay: 0.4s">
+		<div class="card-body items-center text-center p-8">
+			<div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-accent to-primary flex items-center justify-center mb-4 shadow-lg">
+				<span class="material-symbols-outlined text-white text-2xl">search</span>
 			</div>
-			<h3 class="font-bold mt-4">Channel Search</h3>
-			<p class="text-sm text-base-content/60">Search through all messages in the channel</p>
+			<h3 class="card-title font-bold">Full Search</h3>
+			<p class="text-base-content/60">Search through all messages in the channel</p>
 		</div>
 	</div>
 </div>

@@ -1,57 +1,65 @@
 {% include 'header.html' %}
 
-<div class="min-h-[80vh] flex items-center justify-center px-4">
-	<div class="card bg-base-200 w-full max-w-md shadow-2xl">
-		<div class="card-body">
-			<div class="text-center mb-6">
-				<i class="fas fa-lock text-5xl text-primary mb-4"></i>
-				<h2 class="text-2xl font-bold">Sign in to view contents</h2>
-				<p class="text-base-content/60 mt-2">Enter your credentials to continue</p>
+<div class="min-h-[70vh] flex items-center justify-center px-4 py-8">
+	<div class="card bg-base-100 w-full max-w-md shadow-2xl border border-base-300 animate-fade-in">
+		<div class="card-body p-8">
+			<div class="text-center mb-8">
+				<div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 shadow-lg">
+					<span class="material-symbols-outlined text-white text-3xl">lock</span>
+				</div>
+				<h2 class="text-2xl font-bold">Welcome Back</h2>
+				<p class="text-base-content/60 mt-2">Sign in to access your files</p>
 			</div>
 
 			{% if error %}
-			<div class="alert alert-error mb-4">
-				<i class="fas fa-exclamation-circle"></i>
+			<div class="alert alert-error mb-6 shadow-lg">
+				<span class="material-symbols-outlined">error</span>
 				<span>{{ error }}</span>
 			</div>
 			{% endif %}
 
-			<form class="space-y-4" action="/login" method="POST">
+			<form class="space-y-5" action="/login" method="POST">
 				<input type="hidden" name="remember" value="true">
 				<input type="hidden" name="redirect_to" value="{{redirect_to}}">
-				
+
 				<div class="form-control">
-					<label class="label" for="email-address">
-						<span class="label-text font-semibold">
-							<i class="fas fa-user mr-2"></i>Username
+					<label class="label" for="username">
+						<span class="label-text font-medium">
+							<span class="material-symbols-outlined mr-2">person</span>Username
 						</span>
 					</label>
-					<input id="email-address" 
-						   name="username" 
-						   type="text" 
+					<input id="username"
+						   name="username"
+						   type="text"
 						   required
-						   class="input input-bordered focus:input-primary" 
+						   autocomplete="username"
+						   class="input input-bordered input-primary w-full bg-base-200/50 focus:bg-base-100 rounded-xl"
 						   placeholder="Enter your username">
 				</div>
 
 				<div class="form-control">
 					<label class="label" for="password">
-						<span class="label-text font-semibold">
-							<i class="fas fa-key mr-2"></i>Password
+						<span class="label-text font-medium">
+							<span class="material-symbols-outlined mr-2">key</span>Password
 						</span>
 					</label>
-					<input id="password" 
-						   name="password" 
-						   type="password" 
-						   autocomplete="current-password" 
-						   required
-						   class="input input-bordered focus:input-primary" 
-						   placeholder="Enter your password">
+					<div class="relative">
+						<input id="password"
+							   name="password"
+							   type="password"
+							   autocomplete="current-password"
+							   required
+							   class="input input-bordered input-primary w-full bg-base-200/50 focus:bg-base-100 rounded-xl pr-12"
+							   placeholder="Enter your password">
+						<button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content">
+							<span class="material-symbols-outlined" id="toggleIcon">visibility</span>
+						</button>
+					</div>
 				</div>
 
-				<div class="form-control mt-6">
-					<button type="submit" class="btn btn-primary">
-						<i class="fas fa-sign-in-alt mr-2"></i>
+				<div class="form-control mt-8">
+					<button type="submit" class="btn btn-primary btn-block rounded-xl h-12 text-lg gap-2">
+						<span class="material-symbols-outlined">login</span>
 						Sign In
 					</button>
 				</div>
@@ -59,5 +67,19 @@
 		</div>
 	</div>
 </div>
+
+<script>
+function togglePassword() {
+	const input = document.getElementById('password');
+	const icon = document.getElementById('toggleIcon');
+	if (input.type === 'password') {
+		input.type = 'text';
+		icon.textContent = 'visibility_off';
+	} else {
+		input.type = 'password';
+		icon.textContent = 'visibility';
+	}
+}
+</script>
 
 {% include 'footer.html' %}

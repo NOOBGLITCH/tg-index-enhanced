@@ -1,6 +1,6 @@
 import time
 import logging
-from typing import Coroutine, Union
+from typing import Optional
 
 from aiohttp.web import middleware, HTTPFound, Response, Request
 from aiohttp import BasicAuth, hdrs
@@ -10,80 +10,101 @@ from aiohttp_session import get_session
 log = logging.getLogger(__name__)
 
 
-def _do_basic_auth_check(request: Request) -> Union[None, bool]:
-    if "download_" not in request.match_info.route.name:
-        return
+@middleware
+async def auth_middleware(request: Request, handler) -> Response:
+    if not request.app.get("is_authenticated"):
+        return await handler(request)
 
+    public_paths = {"/login", "/logout", "/favicon.ico", "/otg", "/health"}
+    path = str(request.rel_url.path)
+
+    if path in public_paths:
+        return await handler(request)
+
+    auth_result = await _check_authentication(request)
+
+    if auth_result is True:
+        return await handler(request)
+
+    if isinstance(auth_result, Response):
+        return auth_result
+
+    login_url = request.app.router["login_page"].url_for()
+    if path != "/":
+        login_url = login_url.with_query(redirect_to=path)
+
+    return HTTPFound(login_url)
+
+
+async def _check_authentication(request: Request) -> Optional[bool | Response]:
+    basic_auth_response = _check_basic_auth(request)
+    if isinstance(basic_auth_response, Response):
+        return basic_auth_response
+    if basic_auth_response is True:
+        return True
+
+    session = await get_session(request)
+    if session.get("logged_in"):
+        session["last_at"] = time.time()
+        return True
+
+    return None
+
+
+def _check_basic_auth(request: Request) -> Optional[bool | Response]:
     auth = None
     auth_header = request.headers.get(hdrs.AUTHORIZATION)
-    if auth_header is not None:
+
+    if auth_header:
         try:
             auth = BasicAuth.decode(auth_header=auth_header)
         except ValueError:
             pass
 
-    if auth is None:
+    if not auth:
         try:
             auth = BasicAuth.from_url(request.url)
         except ValueError:
             pass
 
     if not auth:
-        return Response(
-            body=b"",
-            status=401,
-            reason="UNAUTHORIZED",
-            headers={hdrs.WWW_AUTHENTICATE: 'Basic realm=""'},
-        )
+        return None
 
-    if auth.login is None or auth.password is None:
-        return
+    if not auth.login or not auth.password:
+        return None
 
-    if (
-        auth.login != request.app["username"]
-        or auth.password != request.app["password"]
+    if auth.login != request.app.get("username") or auth.password != request.app.get(
+        "password"
     ):
-        return
+        return None
 
     return True
 
 
-async def _do_cookies_auth_check(request: Request) -> Union[None, bool]:
-    session = await get_session(request)
-    if not session.get("logged_in", False):
-        return
+@middleware
+async def security_headers_middleware(request: Request, handler) -> Response:
+    response = await handler(request)
 
-    session["last_at"] = time.time()
-    return True
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-Content-Security-Policy"] = "default-src 'self'"
+
+    return response
 
 
-def middleware_factory() -> Coroutine:
-    @middleware
-    async def factory(request: Request, handler: Coroutine) -> Response:
-        if request.app["is_authenticated"] and str(request.rel_url.path) not in [
-            "/login",
-            "/logout",
-            "/favicon.ico",
-        ]:
-            url = request.app.router["login_page"].url_for()
-            if str(request.rel_url) != "/":
-                url = url.with_query(redirect_to=str(request.rel_url))
+@middleware
+async def logging_middleware(request: Request, handler):
+    start_time = time.time()
 
-            basic_auth_check_resp = _do_basic_auth_check(request)
+    try:
+        response = await handler(request)
+    except Exception as e:
+        log.error(f"Request error: {request.method} {request.path}", exc_info=True)
+        raise
 
-            if basic_auth_check_resp is True:
-                return await handler(request)
+    duration = time.time() - start_time
+    log.info(f"{request.method} {request.path} - {response.status} ({duration:.3f}s)")
 
-            cookies_auth_check_resp = await _do_cookies_auth_check(request)
-
-            if cookies_auth_check_resp is not None:
-                return await handler(request)
-
-            if isinstance(basic_auth_check_resp, Response):
-                return basic_auth_check_resp
-
-            return HTTPFound(url)
-
-        return await handler(request)
-
-    return factory
+    return response

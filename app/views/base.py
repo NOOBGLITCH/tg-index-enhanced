@@ -1,14 +1,18 @@
-from typing import Dict, Union
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Dict, Optional
 
-from telethon.tl.types import Chat, User, Channel
+if TYPE_CHECKING:
+    from ..telegram import Client
 
-from ..telegram import Client
 
-
-TELEGRAM_CHAT = Union[Chat, User, Channel]
+@dataclass
+class ChatInfo:
+    chat_id: int
+    alias_id: str
+    title: str
 
 
 class BaseView:
-    client: Client
+    client: "Client"
     url_len: int
-    chat_ids: Dict[str, Dict[str, str]]
+    chat_ids: Dict[str, ChatInfo]

@@ -1,34 +1,99 @@
 {% include 'header.html' %}
 
-<div class="hero py-12 bg-base-200 rounded-box">
-	<div class="hero-content text-center">
-		<div class="max-w-md">
-			<h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-				<i class="fas fa-rss mr-2"></i>Available Sources
-			</h1>
-			<p class="py-4 text-base-content/70">
-				Browse through your Telegram channels and groups
-			</p>
-		</div>
+<div class="text-center py-8 animate-fade-in">
+	<h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-4">
+		<span class="material-symbols-outlined mr-3">folder_open</span>Available Sources
+	</h1>
+	<p class="text-base-content/70 text-lg max-w-xl mx-auto">
+		Browse through your Telegram channels and groups
+	</p>
+</div>
+
+<div class="max-w-xl mx-auto mb-8 animate-fade-in" style="animation-delay: 0.1s">
+	<div class="relative">
+		<input type="text" id="channelSearch" placeholder="Search channels..." autocomplete="off"
+			class="input input-bordered w-full pl-12 h-14 text-lg bg-base-100/50 backdrop-blur-sm border-base-300 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-2xl shadow-lg transition-all">
+		<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40 text-lg">search</span>
+		<button id="clearSearch" class="btn btn-ghost btn-circle absolute right-2 top-1/2 -translate-y-1/2 hidden" onclick="clearSearch()">
+			<span class="material-symbols-outlined">close</span>
+		</button>
 	</div>
 </div>
 
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
+<div id="channelGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-2">
 	{% for chat in chats %}
-	<a title="{{chat.name}}" href="/{{chat.page_id}}"
-		class="card bg-base-100 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group">
-		<figure class="px-4 pt-4">
-			<img src="/{{chat.page_id}}/logo?big=1" 
-				 alt="{{chat.name}}" 
-				 class="w-20 h-20 rounded-full object-cover ring-4 ring-primary/30 group-hover:ring-primary transition-all">
+	<a href="/{{chat.page_id}}"
+		class="channel-card card card-hover bg-base-100 shadow-md border border-transparent hover:border-primary/30 animate-fade-in flex flex-col h-full min-h-[180px]"
+		style="animation-delay: {{ loop.index0 * 0.03 }}s"
+		data-name="{{chat.name|lower}}">
+		<figure class="px-4 pt-4 pb-2 shrink-0">
+			<img src="/{{chat.page_id}}/logo?big=1"
+				 alt="{{chat.name}}"
+				 class="w-16 h-16 rounded-xl object-cover shadow-md mx-auto"
+				 loading="lazy">
 		</figure>
-		<div class="card-body items-center text-center p-4">
-			<h2 class="card-title text-sm font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+		<div class="card-body items-center text-center p-3 pt-0 flex-1 min-h-0">
+			<h2 class="card-title text-xs font-semibold leading-tight line-clamp-2 text-center w-full break-words searchable-text" data-original="{{chat.name}}">
 				{{chat.name}}
 			</h2>
+			<div class="badge badge-ghost badge-xs mt-auto pt-1 text-[10px] truncate max-w-full">
+				<span class="material-symbols-outlined mr-0.5 text-[8px]">tag</span><span class="truncate">{{chat.page_id[:8]}}</span>
+			</div>
 		</div>
 	</a>
 	{% endfor %}
 </div>
+
+<div id="noResults" class="hidden text-center py-16">
+	<div class="text-6xl text-base-content/30 mb-4">
+		<span class="material-symbols-outlined">search_off</span>
+	</div>
+	<h3 class="text-xl font-semibold text-base-content/60">No channels found</h3>
+	<p class="text-base-content/40 mt-2">Try a different search term</p>
+</div>
+
+<script>
+(function() {
+	const searchInput = document.getElementById('channelSearch');
+	const clearBtn = document.getElementById('clearSearch');
+	const cards = document.querySelectorAll('.channel-card');
+	const noResults = document.getElementById('noResults');
+
+	function performSearch(term) {
+		term = term.toLowerCase().trim();
+		let visibleCount = 0;
+
+		cards.forEach(card => {
+			const name = card.dataset.name;
+			const titleEl = card.querySelector('.searchable-text');
+			const original = titleEl.dataset.original;
+
+			if (!term || name.includes(term)) {
+				card.style.display = '';
+				titleEl.textContent = original;
+				if (term) {
+					const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+					titleEl.innerHTML = original.replace(regex, '<mark class="bg-warning/50 rounded px-0.5">$1</mark>');
+				}
+				visibleCount++;
+			} else {
+				card.style.display = 'none';
+			}
+		});
+
+		noResults.classList.toggle('hidden', visibleCount > 0);
+		clearBtn.classList.toggle('hidden', !term);
+	}
+
+	function clearSearch() {
+		searchInput.value = '';
+		performSearch('');
+		searchInput.focus();
+	}
+
+	searchInput.addEventListener('input', (e) => performSearch(e.target.value));
+	performSearch('');
+})();
+</script>
 
 {% include 'footer.html' %}

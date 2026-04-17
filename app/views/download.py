@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from aiohttp import web
 from telethon.tl.custom import Message
@@ -13,70 +14,122 @@ log = logging.getLogger(__name__)
 
 class Download(BaseView):
     async def download_get(self, req: web.Request) -> web.Response:
-        return await self.handle_request(req)
+        return await self._handle_download(req, head=False)
 
     async def download_head(self, req: web.Request) -> web.Response:
-        return await self.handle_request(req, head=True)
+        return await self._handle_download(req, head=True)
 
-    async def handle_request(
+    async def _handle_download(
         self, req: web.Request, head: bool = False
     ) -> web.Response:
         if block_downloads:
-            return web.Response(status=403, text="403: Forbiden" if not head else None)
+            return web.Response(
+                status=403,
+                text="403: Forbidden" if not head else None,
+                content_type="text/plain",
+            )
 
         file_id = int(req.match_info["id"])
         alias_id = req.match_info["chat"]
-        chat = self.chat_ids[alias_id]
-        chat_id = chat["chat_id"]
 
         try:
-            message: Message = await self.client.get_messages(
-                entity=chat_id, ids=file_id
+            chat = self.chat_ids[alias_id]
+        except KeyError:
+            return web.Response(
+                status=404,
+                text="404: Chat not found" if not head else None,
+                content_type="text/plain",
             )
-        except Exception:
-            log.debug(f"Error in getting message {file_id} in {chat_id}", exc_info=True)
-            message = None
+
+        chat_id = chat.chat_id
+
+        message: Optional[Message] = await self._get_message(chat_id, file_id)
 
         if not message or not message.file:
-            log.debug(f"no result for {file_id} in {chat_id}")
             return web.Response(
                 status=410,
-                text="410: Gone. Access to the target resource is no longer available!"
+                text="410: Gone. The requested resource is no longer available."
                 if not head
                 else None,
+                content_type="text/plain",
             )
 
-        media = message.media
+        return await self._stream_file(req, message, head)
+
+    async def _get_message(self, chat_id: int, file_id: int) -> Optional[Message]:
+        try:
+            return await self.client.get_messages(entity=chat_id, ids=file_id)
+        except Exception as e:
+            log.debug(f"Error getting message {file_id} in {chat_id}: {e}")
+            return None
+
+    async def _stream_file(
+        self, req: web.Request, message: Message, head: bool
+    ) -> web.Response:
         size = message.file.size
-        file_name = get_file_name(message, quote_name=False)
         mime_type = message.file.mime_type
+        filename_raw = get_file_name(message, quote_name=False)
+
+        safe_filename = filename_raw.replace('"', '\\"')
 
         try:
-            offset = req.http_range.start or 0
-            limit = req.http_range.stop or size
-            if (limit > size) or (offset < 0) or (limit < offset):
-                raise ValueError("range not in acceptable format")
+            offset, limit = self._parse_range(req, size)
         except ValueError:
             return web.Response(
                 status=416,
                 text="416: Range Not Satisfiable" if not head else None,
                 headers={"Content-Range": f"bytes */{size}"},
+                content_type="text/plain",
             )
 
-        if not head:
-            body = self.client.download(media, size, offset, limit)
-            log.info(
-                f"Serving file in {message.id} (chat {chat_id}) ; Range: {offset} - {limit}"
-            )
-        else:
-            body = None
+        log.info(
+            f"Serving file {message.id} (chat {message.chat_id}) | "
+            f"Range: {offset}-{limit} / {size}"
+        )
 
-        headers = {
+        if head:
+            return web.Response(
+                status=200,
+                headers=self._build_headers(
+                    safe_filename, mime_type, offset, limit, size, False
+                ),
+            )
+
+        body = self.client.download(message.media, size, offset, limit)
+
+        return web.Response(
+            status=206 if offset else 200,
+            body=body,
+            headers=self._build_headers(
+                safe_filename, mime_type, offset, limit, size, True
+            ),
+        )
+
+    def _parse_range(self, req: web.Request, size: int) -> tuple[int, int]:
+        http_range = req.http_range
+        offset = http_range.start or 0
+        limit = http_range.stop or size
+
+        if limit > size or offset < 0 or limit < offset:
+            raise ValueError("Invalid range")
+
+        return offset, limit
+
+    def _build_headers(
+        self,
+        filename: str,
+        mime_type: str,
+        offset: int,
+        limit: int,
+        size: int,
+        include_body: bool,
+    ) -> dict:
+        return {
             "Content-Type": mime_type,
-            "Content-Range": f"bytes {offset}-{limit}/{size}",
+            "Content-Range": f"bytes {offset}-{limit - 1}/{size}",
             "Content-Length": str(limit - offset),
             "Accept-Ranges": "bytes",
-            "Content-Disposition": f'attachment; filename="{file_name}"',
+            "Content-Disposition": f'inline; filename="{filename}"',
+            "Cache-Control": "public, max-age=3600",
+            "X-Content-Type-Options": "nosniff",
         }
-
-        return web.Response(status=206 if offset else 200, body=body, headers=headers)
