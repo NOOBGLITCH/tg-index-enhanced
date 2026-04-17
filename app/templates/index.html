@@ -227,7 +227,7 @@
 	function highlightText(text, term) {
 		if (!term) return text;
 		const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-		return text.replace(regex, '<mark class="bg-yellow-500/70 text-black font-bold rounded px-0.5">$1</mark>');
+		return text.replace(regex, '<mark style="background:#FBF719;color:#000;font-weight:bold;padding:0 2px;border-radius:3px">$1</mark>');
 	}
 
 	function performSearch(term) {
