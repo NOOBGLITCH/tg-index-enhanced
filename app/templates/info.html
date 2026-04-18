@@ -103,9 +103,10 @@ if(typeof pdfjsLib!=='undefined'){pdfjsLib.getDocument("{{download_url}}").promi
                     </div>
                 </div>
                 <style>
-                .jw-controls-custom-btn{display:flex!important;align-items:center!important;justify-content:center!important;width:32px!important;height:32px!important;margin:0 3px!important;background:#1a1a1a!important;border:0;border-radius:4px;cursor:pointer;transition:all .2s}.jw-controls-custom-btn:hover{background:#e50914!important}
-                .jw-controls-custom-btn svg{width:14px!important;height:14px!important;fill:#fff!important}
-                </style>
+.jw-controls-custom-btn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(255,255,255,0.15);border:none;border-radius:4px;cursor:pointer;transition:all .2s;flex-shrink:0}
+.jw-controls-custom-btn:hover{background:#e50914}
+.jw-controls-custom-btn svg{width:16px;height:16px;fill:#fff}
+</style>
                 <script>
                 (function() {
                     if (typeof jwplayer === 'undefined') {
@@ -143,23 +144,31 @@ jwplayer('jwplayer-container').setup({
                         let p = jwplayer('jwplayer-container');
                         if (!p || !p.getContainer) return;
                         let c = p.getContainer();
-                        if (!c) return;
-                        let g = c.querySelector('.jw-controlbar') || c.lastElementChild;
-                        if (!g || g.customBtnsAdded) return;
-                        g.customBtnsAdded = true;
+                        if (!c || c.customBtnsAdded) return;
+                        c.customBtnsAdded = true;
+                        let centerGroup = c.querySelector('.jw-controlbar-center-group');
+                        if (!centerGroup) {
+                            centerGroup = c.querySelector('.jw-controlbar');
+                            if (!centerGroup) return;
+                        }
+                        let customDiv = document.createElement('div');
+                        customDiv.style.cssText = 'display:flex;gap:4px;align-items:center;margin:0 12px;position:absolute;left:50%;transform:translateX(-50%);z-index:10;';
                         let btns = [
-                            {html:'<svg viewBox="0 0 24 24"><path fill="#fff" d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>',title:'Rewind 10s',action:()=>p.seek(Math.max(0,p.getPosition()-10))},
-                            {html:'<svg viewBox="0 0 24 24"><path fill="#fff" d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>',title:'Forward 10s',action:()=>p.seek(p.getPosition()+10)},
-                            {html:'<svg viewBox="0 0 24 24"><path fill="#fff" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>',title:'Download',action:()=>window.location.href='{{download_url}}'}
+                            {html:'<span class="material-symbols-outlined" style="font-size:18px;color:#fff">replay_10</span>',title:'Rewind 10s',action:()=>p.seek(Math.max(0,p.getPosition()-10))},
+                            {html:'<span class="material-symbols-outlined" style="font-size:18px;color:#fff">forward_10</span>',title:'Forward 10s',action:()=>p.seek(p.getPosition()+10)},
+                            {html:'<span class="material-symbols-outlined" style="font-size:18px;color:#fff">download</span>',title:'Download',action:()=>{var a=document.createElement('a');a.href='{{download_url}}';a.download='{{name}}';document.body.appendChild(a);a.click();document.body.removeChild(a);}}
                         ];
                         btns.forEach(b => {
                             let btn = document.createElement('button');
-                            btn.className = 'jw-controls-custom-btn';
                             btn.innerHTML = b.html;
                             btn.title = b.title;
-                            btn.onclick = b.action;
-                            g.appendChild(btn);
+                            btn.style.cssText = 'width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.15);border:none;border-radius:4px;cursor:pointer;transition:all .2s;flex-shrink:0;';
+                            btn.onmouseenter = () => btn.style.background = '#e50914';
+                            btn.onmouseleave = () => btn.style.background = 'rgba(255,255,255,0.15)';
+                            btn.onclick = (e) => { e.stopPropagation(); b.action(); };
+                            customDiv.appendChild(btn);
                         });
+                        centerGroup.insertBefore(customDiv, centerGroup.firstChild);
                     }
                     let btnInt = setInterval(addCustomButtons, 500);
                     setTimeout(() => clearInterval(btnInt), 8000);
@@ -192,7 +201,7 @@ jwplayer('jwplayer-container').setup({
                 <div class="px-6 py-4 border-t border-base-300 flex flex-wrap gap-3 justify-center">
                     {% if not block_downloads %}
                     <a class="btn btn-outline btn-lg" href="javascript:history.back()"><span class="material-symbols-outlined">arrow_back</span>Back</a>
-                    <a class="btn btn-success btn-lg" href="{{download_url}}" download="{{name}}"><span class="material-symbols-outlined">download</span>Download ({{human_size}})</a>
+                    <a class="btn btn-success btn-lg" href="javascript:void(0)" onclick="downloadFile('{{download_url}}', '{{name}}')"><span class="material-symbols-outlined">download</span>Download ({{human_size}})</a>
                     {% else %}
                     <a class="btn btn-outline btn-lg" href="javascript:history.back()"><span class="material-symbols-outlined">arrow_back</span>Back</a>
                     {% endif %}
@@ -243,6 +252,14 @@ document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowRight') nextImage(e);
     }
 });
+function downloadFile(url, filename) {
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
 </script>
 
 {% include 'footer.html' %}

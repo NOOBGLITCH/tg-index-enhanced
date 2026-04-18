@@ -130,7 +130,7 @@ class Download(BaseView):
             "Content-Range": f"bytes {offset}-{limit - 1}/{size}",
             "Content-Length": str(limit - offset),
             "Accept-Ranges": "bytes",
-            "Content-Disposition": f'inline; filename="{filename}"',
+            "Content-Disposition": f'attachment; filename="{filename}"',
             "Cache-Control": "public, max-age=3600",
             "X-Content-Type-Options": "nosniff",
         }
