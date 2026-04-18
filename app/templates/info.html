@@ -86,13 +86,13 @@
                 </div>
                 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-var pdf=null,page=1,total=1,scale=1.5,canvas=document.getElementById('pdf-canvas'),ctx=canvas&&canvas.getContext('2d');
-function render(n){pdf&&pdf.getPage(n).then(p=>{var v=p.getViewport({scale}),c=document.getElementById('pdf-canvas');c.height=v.height;c.width=v.width;c.style.display='block';p.render({canvasContext:ctx,viewport:v}).promise.then(()=>{document.getElementById('pdf-loading').style.display='none';document.getElementById('pdf-error').style.display='none'}).catch(()=>{document.getElementById('pdf-error').style.display='flex'});}).catch(()=>{document.getElementById('pdf-error').style.display='flex'});document.getElementById('pdf-total').textContent=total;document.getElementById('pdf-page').value=n;document.getElementById('pdf-prev-btn').disabled=n<=1;document.getElementById('pdf-next-btn').disabled=n>=total}
+let pdf=null,page=1,total=1,scale=1.5,canvas=document.getElementById('pdf-canvas'),ctx=canvas&&canvas.getContext('2d');
+function render(n){pdf&&pdf.getPage(n).then(p=>{let v=p.getViewport({scale}),c=document.getElementById('pdf-canvas');c.height=v.height;c.width=v.width;c.style.display='block';p.render({canvasContext:ctx,viewport:v}).promise.then(()=>{document.getElementById('pdf-loading').style.display='none';document.getElementById('pdf-error').style.display='none'}).catch(()=>{document.getElementById('pdf-error').style.display='flex'});}).catch(()=>{document.getElementById('pdf-error').style.display='flex'});document.getElementById('pdf-total').textContent=total;document.getElementById('pdf-page').value=n;document.getElementById('pdf-prev-btn').disabled=n<=1;document.getElementById('pdf-next-btn').disabled=n>=total}
 function pdfPrev(){if(page>1){page--;render(page)}}
 function pdfNext(){if(page<total){page++;render(page)}}
 function pdfZoomIn(){scale+=0.25;if(scale>4)scale=4;document.getElementById('pdf-zoom').textContent=Math.round(scale*100)+'%';render(page)}
 function pdfZoomOut(){scale-=0.25;if(scale<0.5)scale=0.5;document.getElementById('pdf-zoom').textContent=Math.round(scale*100)+'%';render(page)}
-document.getElementById('pdf-page')&&document.getElementById('pdf-page').addEventListener('change',e=>{var n=parseInt(e.target.value);if(n>=1&&n<=total){page=n;render(page)}});
+document.getElementById('pdf-page')&&document.getElementById('pdf-page').addEventListener('change',e=>{let n=parseInt(e.target.value);if(n>=1&&n<=total){page=n;render(page)}});
 if(typeof pdfjsLib!=='undefined'){pdfjsLib.getDocument("{{download_url}}").promise.then(p=>{pdf=p;total=p.numPages;page=1;render(page)}).catch(()=>{document.getElementById('pdf-loading').style.display='none';document.getElementById('pdf-error').style.display='flex'})}
                 </script>
 
@@ -103,12 +103,12 @@ if(typeof pdfjsLib!=='undefined'){pdfjsLib.getDocument("{{download_url}}").promi
                     </div>
                 </div>
                 <script>
-                (function() {
+                (() => {
                     if (typeof jwplayer === 'undefined') {
                         document.getElementById('jwplayer-container').innerHTML = '<video class="w-full aspect-video" controls poster="{{thumbnail}}"><source src="{{download_url}}" type="{{mime_type or 'video/mp4'}}">Your browser does not support video.</video>';
                         return;
                     }
-                    jwplayer('jwplayer-container').setup({
+                    let player = jwplayer('jwplayer-container').setup({
                         file: '{{download_url}}',
                         image: '{{thumbnail}}',
                         width: '100%',
@@ -134,6 +134,38 @@ if(typeof pdfjsLib!=='undefined'){pdfjsLib.getDocument("{{download_url}}").promi
                             edgeStyle: 'none'
                         },
                         generateSdkBundle: true
+                    });
+                    player.on('ready', () => {
+                        console.log('Adding JWPlayer custom buttons');
+                        // Add buttons to control bar
+                        player.addButton('<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#fff" d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>', 'Rewind 10s', () => player.seek(Math.max(0, player.getPosition() - 10)), 'rewind-id');
+                        player.addButton('<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#fff" d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>', 'Forward 10s', () => player.seek(player.getPosition() + 10), 'forward-id');
+                        // Add download button
+                        player.addButton('<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#fff" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>', 'Download Video', () => window.location.href = '{{download_url}}', 'download-id');
+                    });
+                    player.on('ready', () => {
+                        let style = document.createElement('style');
+                        style.textContent = `
+                            .jw-controlbar-left-group .jw-icon {
+                                background: linear-gradient(145deg, #2d2d2d, #1a1a1a) !important;
+                                border-radius: 10px !important;
+                                margin: 0 3px !important;
+                                transition: all 0.2s ease !important;
+                            }
+                            .jw-controlbar-left-group .jw-icon:hover {
+                                background: linear-gradient(145deg, #ff4757, #e84118) !important;
+                                transform: scale(1.1);
+                            }
+                            .jw-controlbar-left-group .jw-icon svg {
+                                width: 20px !important;
+                                height: 20px !important;
+                            }
+                            .jw-button-download {
+                                background: #e50914 !important;
+                                border-radius: 6px !important;
+                            }
+                        `;
+                        document.head.appendChild(style);
                     });
                 })();
                 </script>
@@ -193,7 +225,7 @@ if(typeof pdfjsLib!=='undefined'){pdfjsLib.getDocument("{{download_url}}").promi
 
 <script>
 function openLightbox() {
-    var img = document.querySelector('.gallery-img');
+    let img = document.querySelector('.gallery-img');
     if (img) {
         document.getElementById('lightbox-img').src = img.src;
         document.getElementById('lightbox').classList.add('active');
@@ -208,7 +240,7 @@ function closeLightbox(e) {
 }
 function prevImage(e) { e.stopPropagation(); }
 function nextImage(e) { e.stopPropagation(); }
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', (e) => {
     if (document.getElementById('lightbox').classList.contains('active')) {
         if (e.key === 'Escape') closeLightbox({target: {id: 'lightbox'}});
         if (e.key === 'ArrowLeft') prevImage(e);

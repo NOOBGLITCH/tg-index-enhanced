@@ -34,14 +34,15 @@ class Download(BaseView):
 
         try:
             chat = self.chat_ids[alias_id]
-        except KeyError:
+            chat_id = chat.chat_id if hasattr(chat, 'chat_id') else chat.get('chat_id') if isinstance(chat, dict) else None
+            if chat_id is None:
+                raise KeyError("Invalid chat")
+        except (KeyError, AttributeError, TypeError):
             return web.Response(
                 status=404,
                 text="404: Chat not found" if not head else None,
                 content_type="text/plain",
             )
-
-        chat_id = chat.chat_id
 
         message: Optional[Message] = await self._get_message(chat_id, file_id)
 

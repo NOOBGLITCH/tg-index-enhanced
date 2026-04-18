@@ -32,10 +32,12 @@ IMAGE_MIME = frozenset(("image",))
 
 
 class IndexView(BaseView):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, client=None):
         self._message_cache: Dict[str, tuple[List, float]] = {}
         self._lock = asyncio.Lock()
+        self.url_len = 8
+        if client:
+            self.client = client
 
     @aiohttp_jinja2.template("index.html")
     async def index(self, req: web.Request) -> Dict[str, Any]:
@@ -43,7 +45,11 @@ class IndexView(BaseView):
 
         try:
             chat = self.chat_ids[alias_id]
-        except KeyError:
+            chat_id = chat.chat_id if hasattr(chat, 'chat_id') else chat.get('chat_id') if isinstance(chat, dict) else None
+            chat_title = chat.title if hasattr(chat, 'title') else chat.get('title') if isinstance(chat, dict) else None
+            if chat_id is None or chat_title is None:
+                raise KeyError("Invalid chat")
+        except (KeyError, AttributeError, TypeError):
             return {
                 "found": False,
                 "reason": "Chat not found",
@@ -66,10 +72,10 @@ class IndexView(BaseView):
             f"Chat: {alias_id} | Page: {page_num} | Limit: {limit_val} | Search: {search_query}"
         )
 
-        cache_key = f"{chat.chat_id}:{telethon_offset}:{limit_val}:{search_query}"
+        cache_key = f"{chat_id}:{telethon_offset}:{limit_val}:{search_query}"
 
         messages = await self._fetch_messages_cached(
-            chat.chat_id, limit_val, telethon_offset, search_query, cache_key
+            chat_id, limit_val, telethon_offset, search_query, cache_key
         )
 
         results = self._process_messages(messages, alias_id)
@@ -86,9 +92,9 @@ class IndexView(BaseView):
             "search": search_query,
             "limit_options": LIMIT_OPTIONS,
             "current_limit": limit_val,
-            "name": chat.title,
+            "name": chat_title,
             "logo": f"/{alias_id}/logo",
-            "title": f"Index of {chat.title}",
+            "title": f"Index of {chat_title}",
             "authenticated": req.app.get("is_authenticated", False),
             "block_downloads": block_downloads,
             "m3u_option": (
@@ -101,10 +107,14 @@ class IndexView(BaseView):
     async def _fetch_messages_cached(
         self, chat_id: int, limit: int, offset: int, search: str, cache_key: str
     ) -> List[Any]:
+        if not hasattr(self, '_lock') or self._lock is None:
+            self._lock = asyncio.Lock()
+        if not hasattr(self, '_message_cache') or self._message_cache is None:
+            self._message_cache = {}
         now = asyncio.get_event_loop().time()
 
         async with self._lock:
-            if cache_key in self._message_cache:
+            if self._message_cache and cache_key in self._message_cache:
                 messages, cache_time = self._message_cache[cache_key]
                 if now - cache_time < CACHE_TTL:
                     log.debug(f"Cache hit for {cache_key}")

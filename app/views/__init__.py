@@ -1,6 +1,7 @@
+import asyncio
 import base64
 import hashlib
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, Tuple
 
 from ..config import SHORT_URL_LEN
 from ..telegram import Client
@@ -29,10 +30,14 @@ class Views(
     LogoutView,
     FaviconIconView,
 ):
+    import asyncio
+    
     def __init__(self, client: Client):
         self.client = client
         self.url_len = SHORT_URL_LEN
         self.chat_ids: Dict[str, ChatInfo] = {}
+        self._lock = asyncio.Lock()
+        self._message_cache = {}
 
     def generate_alias_id(self, chat) -> str:
         chat_id = chat.id

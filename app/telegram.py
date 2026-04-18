@@ -64,7 +64,8 @@ class Client(TelegramClient):
     async def start(self, *args, **kwargs) -> "Client":
         try:
             await super().start(*args, **kwargs)
-            self.log.info(f"Telegram client connected (user: {self._me})")
+            me = await self.get_me()
+            self.log.info(f"Telegram client connected (user: {me.first_name})")
             return self
         except Exception as e:
             self.log.error(f"Failed to start Telegram client: {e}")
