@@ -30,7 +30,7 @@
 		}
 
 		.jwplayer.jw-theme-netflix .jw-progress {
-			background: let(--netflix-red) !important;
+			background: var(--netflix-red) !important;
 			height: 4px !important;
 		}
 
@@ -39,7 +39,7 @@
 		}
 
 		.jwplayer.jw-theme-netflix .jw-knob {
-			background: let(--netflix-red) !important;
+			background: var(--netflix-red) !important;
 			width: 14px !important;
 			height: 14px !important;
 			border: 2px solid white !important;
@@ -50,21 +50,21 @@
 		}
 
 		.jwplayer.jw-theme-netflix .jw-button:hover {
-			color: let(--netflix-red) !important;
+			color: var(--netflix-red) !important;
 		}
 
 		.jwplayer.jw-theme-netflix .jw-time {
-			color: let(--netflix-gray) !important;
+			color: var(--netflix-gray) !important;
 			font-family: 'Inter', sans-serif !important;
 		}
 
 		.jwplayer.jw-theme-netflix .jw-tooltip-time {
-			background: let(--netflix-dark) !important;
+			background: var(--netflix-dark) !important;
 			color: white !important;
 		}
 
 		.jwplayer.jw-theme-netflix .jw-menu {
-			background: let(--netflix-dark) !important;
+			background: var(--netflix-dark) !important;
 			border: 1px solid #333 !important;
 		}
 
@@ -74,7 +74,7 @@
 
 		.jwplayer.jw-theme-netflix .jw-menu-item:hover,
 		.jwplayer.jw-theme-netflix .jw-menu-item.jw-active-option {
-			background: let(--netflix-red) !important;
+			background: var(--netflix-red) !important;
 		}
 
 		.jwplayer.jw-theme-netflix .jw-dock-button {
@@ -82,7 +82,7 @@
 		}
 
 		.jwplayer.jw-theme-netflix .jw-dock-button:hover {
-			background: let(--netflix-red) !important;
+			background: var(--netflix-red) !important;
 		}
 
 		.jwplayer.jw-theme-netflix .jw-slider-horizontal:hover .jw-knob {
@@ -97,13 +97,13 @@
 		}
 
 		.jwplayer.jw-theme-netflix .jw-display-icon-container:hover {
-			background: let(--netflix-red) !important;
+			background: var(--netflix-red) !important;
 			transform: scale(1.1);
 		}
 
 		/* Quality selector Netflix style */
 		.jwplayer.jw-theme-netflix .jw-quality-menu {
-			background: let(--netflix-dark) !important;
+			background: var(--netflix-dark) !important;
 		}
 
 		/* Logo styling */
@@ -120,7 +120,7 @@
 		/* Buffering spinner */
 		.jwplayer.jw-theme-netflix .jw-spinner {
 			border: 3px solid rgba(255,255,255,0.3) !important;
-			border-top-color: let(--netflix-red) !important;
+			border-top-color: var(--netflix-red) !important;
 		}
 
 		/* Caption styling */
@@ -146,7 +146,7 @@
 			left: 0;
 			right: 0;
 			height: 4px;
-			background: linear-gradient(90deg, let(--netflix-red) 0%, #ff6b6b 50%, let(--netflix-red) 100%);
+			background: linear-gradient(90deg, var(--netflix-red) 0%, #ff6b6b 50%, var(--netflix-red) 100%);
 			z-index: 10;
 		}
 	</style>
@@ -161,7 +161,7 @@
 		}
 
 		body {
-			transition: background-color let(--transition-speed), color let(--transition-speed);
+			transition: background-color var(--transition-speed), color var(--transition-speed);
 		}
 
 		@keyframes fadeIn {
