@@ -1,54 +1,50 @@
-# tg-index Changes Summary
+# tg-index Changes
 
-## All Git Commits
+## Features Added/Improved
 
-### Latest (a54a321)
-- docs: update changes.md with JWPlayer controls
+### JWPlayer Video Player
+- Custom control bar buttons (Rewind 10s, Forward 10s, Download)
+- Material Symbols icons for player controls
+- Download forces direct file save (attachment)
+- Positioned custom buttons in control bar center
 
-### JWPlayer Enhancements
-- **5c6de83** feat: enhance JWPlayer controls, download fix
-  - Custom buttons: replay_10, forward_10, download
-  - Download forces file save (attachment)
-  - Material Symbols icons
-  
-- **a64ac71** fix: jwplayer custom buttons in control bar
-  - Positioned buttons in control bar center
-  - Added Share, PiP, Download
+### UI/DaisyUI Redesign
+- Complete DaisyUI template redesign
+- Dark/Light theme toggle
+- Enhanced thumbnail viewing
+- Better file type icons
+- Improved search highlight color (#FBF719)
+- Mobile responsive layout
 
-- **4590c2e** fix: jwplayer controls, var to let
-  - Fixed var to let scoping
-  - Fixed chat_ids lookup
-  - Fixed _me attribute
+### Performance
+- Enhanced LRU cache with TTL support
+- Disk cache with mmap for fast I/O
+- Back pressure controller (50 concurrent requests)
+- Rate limiting (100 requests per 60s per IP)
+- Circuit breaker for downstream failures
+- Exponential backoff for Telegram FloodWait errors
+- Graceful shutdown handling
 
-- **f0d63e6** fix: use #FBF719 for search highlight
+### Monitoring
+- Health metrics endpoint
+- Response time tracking (rolling average)
+- Status code distribution
+- Request ID tracking for debugging
 
-### Performance & UI
-- **d4ef243** perf: massive performance & stability improvements
-  - LRU cache + disk cache with TTL
-  - Back pressure (50 concurrent)
-  - Rate limiting (100/60s)
-  - Circuit breaker
-  - Exponential backoff
-  - Health metrics
-
-- **e1bd2d5** compltely redesigned daisy ui
-  - Complete DaisyUI redesign
-  - Thumbnail optimizations
-  - Template improvements
-
-- **4f8f33b** Fix application runtime errors
-- **b1628ee** Saved progress at loop completion
-- **afb9787** Add project setup
-- **b253969** fix for older python versions
+### Bug Fixes
+- Fixed var to let scoping in JS
+- Fixed chat_ids dictionary lookup
+- Fixed _me attribute reference
+- Fixed application runtime errors
 
 ---
 
 ## New Files
-- `app/health.py` - Health metrics
-- `app/backpressure.py` - Request limits
-- `app/cache.py` - LRU/DiskCache
-- `app/security.py` - Rate limiting
-- `app/telegram.py` - Telegram client
+- health.py - Health metrics
+- backpressure.py - Request limits
+- cache.py - LRU/DiskCache
+- security.py - Rate limiting
+- telegram.py - Client with retry logic
 
 ## Modified
-- `app/main.py`, `app/config.py`, `app/views/`, `app/templates/`
+- main.py, config.py, views/, templates/, download.py
