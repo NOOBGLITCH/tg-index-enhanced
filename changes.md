@@ -13,6 +13,11 @@
 - **Security**: Rate limiting (100/60s per IP), session management
 - **Monitoring**: Health endpoints, response time tracking, error monitoring
 
+## JWPlayer Controls
+- Custom buttons in control bar: replay_10, forward_10, download
+- Download forces file save (Content-Disposition: attachment)
+- Material Symbols icons
+
 ## UI Updates
 - Search highlight color (#FBF719)
 - Thumbnail optimizations
