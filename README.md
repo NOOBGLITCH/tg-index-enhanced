@@ -2,7 +2,7 @@
 
 An enhanced fork of [tg-index](https://github.com/odysseusmax/tg-index) with major performance, UI, and feature improvements.
 
-## What's New
+## Changes Made(enchanced)
 
 - **JWPlayer Video Player**: Custom control bar buttons, Material Symbols icons, direct file save
 - **UI Redesign**: DaisyUI, dark/light theme, mobile responsive
