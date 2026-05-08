@@ -12,7 +12,7 @@ packages = ["cargo", "freetype", "lcms2", "libiconv", "libimagequant", "libjpeg"
 API_ID = "964098"
 PORT = "5000"
 API_HASH = "3a40779521bc99b4c9753572ddd17ee7"
-SESSION_STRING = "1BVtsOHsBuyxWvtkeLoFWwDmTILm5zwL57rMX8jDRJCobg7wFI017oH0uwA4VyNxJa7kERpGURelltQzCvIiVwfyI2b97QbcUpZ2ukp9PhlCq0U8VqjBlOoGFxWLsC5YSaRNc1KIlUwHdIop8hLzRNUyfAbgaChrmAK2DMCzIisKWJe6yC7IXuPKHHvOwwPj3WDQB-teKzyUlqLOWPgmW1I2wsKPjyJsXEFhg8Plm5rYN3GRpVkrfyHuoNA5Cfbzmrf0jVYdE8LZeSkauCE1JWzuS8J6EXJfHC2AvWb6ImEi2XqBuDRUmMTzvOZMacJmtMiolcjLWNaRHGWJLsnurfTwZQLrxQFY="
+SESSION_STRING = "1BVtsOKIBuzxzYSRe1YYf1IHe02W4iMZUHyMIR9rdLGjH6apna953BrsnCixhY9SG6gTxFRNwrlec96iA622GjQrcHNMLOmU76QKjk-XNP5PSMYIQf0-1N6TSVqe3XEp4n8ClXev53DCIR0dQyR5l4jZJivjL9gA-PjqLMuCfwSz6TiehA80xEP6lOxipGeivh0GOI8h2lIbKmLn65XKzp67JMTVwLHdpyCJBaa-c6dX60mWenhe6bxK2RWJjA2ZrKmMJxJAaCrRFxhHYYNPfJU9PjrS2sCBvkPmappc6FuNItWnDp-SjizkrNPxP30YAi1UC3lTeoaEYmMYRq-yYiIkxZzBRLCc="
 index_all = "true"
 INDEX_SETTINGS = "{\"index_all\":true,\"index_private\":true,\"index_group\":true,\"index_channel\":true,\"exclude_chats\":[],\"include_chats\":[]}"
 
