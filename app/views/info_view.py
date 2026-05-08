@@ -141,18 +141,24 @@ class InfoView(BaseView):
 
         # Add prev/next navigation (older = smaller id, newer = larger id)
         try:
+            entity = await self.client.get_entity(chat.chat_id)
             prev_msgs = await self.client.get_messages(
-                entity=chat.chat_id, limit=1, max_id=file_id
+                entity=entity, limit=1, max_id=file_id
             )
             if prev_msgs:
                 result["prev_url"] = f"/{alias_id}/{prev_msgs[0].id}/view"
 
             next_msgs = await self.client.get_messages(
-                entity=chat.chat_id, limit=1, min_id=file_id, reverse=True
+                entity=entity, limit=1, min_id=file_id, reverse=True
             )
             if next_msgs:
                 result["next_url"] = f"/{alias_id}/{next_msgs[0].id}/view"
+
+            log.debug(
+                f"Prev/next for {alias_id}/{file_id}: "
+                f"prev={result.get('prev_url')} next={result.get('next_url')}"
+            )
         except Exception as e:
-            log.debug(f"Error building prev/next nav: {e}")
+            log.warning(f"Error building prev/next nav for {alias_id}/{file_id}: {e}")
 
         return result
