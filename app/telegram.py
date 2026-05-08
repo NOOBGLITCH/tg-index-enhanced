@@ -9,7 +9,6 @@ from typing import Callable, Optional, TypeVar
 from telethon import TelegramClient, utils
 from telethon.errors import (
     FloodWaitError,
-    AuthKeyDuplicatedError,
 )
 from telethon.sessions import StringSession
 
@@ -63,39 +62,14 @@ class Client(TelegramClient):
         self._last_error_time = 0.0
 
     async def start(self, *args, **kwargs) -> "Client":
-        max_attempts = 5
-        for attempt in range(1, max_attempts + 1):
-            try:
-                await self.connect()
-                break
-            except AuthKeyDuplicatedError:
-                wait = attempt * 10
-                if attempt == max_attempts:
-                    self.log.error(
-                        "Session conflict: another instance is still running. "
-                        "Stop all other instances of this app (including any deployments) "
-                        "and restart."
-                    )
-                    raise
-                self.log.warning(
-                    f"Session conflict (attempt {attempt}/{max_attempts}), "
-                    f"retrying in {wait}s — stop any other running instances"
-                )
-                try:
-                    await self.disconnect()
-                except Exception:
-                    pass
-                await asyncio.sleep(wait)
-
-        # get_me() is informational only — don't crash if it fails
         try:
+            await super().start(*args, **kwargs)
             me = await self.get_me()
-            name = me.first_name if me else "unknown"
-            self.log.info(f"Telegram client connected (user: {name})")
+            self.log.info(f"Telegram client connected (user: {me.first_name})")
+            return self
         except Exception as e:
-            self.log.warning(f"Connected but couldn't fetch user info: {e}")
-
-        return self
+            self.log.error(f"Failed to start Telegram client: {e}")
+            raise
 
     def increment_request(self) -> None:
         self._request_count += 1

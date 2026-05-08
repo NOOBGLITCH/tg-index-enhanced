@@ -59,20 +59,16 @@ class InfoView(BaseView):
             return {"found": False, "reason": "Chat not found", "authenticated": False}
 
         try:
-            message = await self.client.get_messages_safe(chat.chat_id, file_id)
+            message = await self.client.get_messages(entity=chat.chat_id, ids=file_id)
         except Exception as e:
             log.error(f"Error getting message: {e}")
-            return {
-                "found": False,
-                "reason": "Could not reach Telegram, please try again",
-                "authenticated": req.app.get("is_authenticated", False),
-            }
+            message = None
 
         if not message:
             return {
                 "found": False,
                 "reason": "Message not found",
-                "authenticated": req.app.get("is_authenticated", False),
+                "authenticated": False,
             }
 
         result = {
@@ -142,21 +138,5 @@ class InfoView(BaseView):
                     "page_id": alias_id,
                 }
             )
-
-        # Add prev/next navigation (older = smaller id, newer = larger id)
-        try:
-            prev_msgs = await self.client.get_messages_safe(
-                chat.chat_id, None, limit=1, max_id=file_id
-            )
-            if prev_msgs:
-                result["prev_url"] = f"/{alias_id}/{prev_msgs[0].id}/view"
-
-            next_msgs = await self.client.get_messages_safe(
-                chat.chat_id, None, limit=1, min_id=file_id, reverse=True
-            )
-            if next_msgs:
-                result["next_url"] = f"/{alias_id}/{next_msgs[0].id}/view"
-        except Exception as e:
-            log.debug(f"Error building prev/next nav: {e}")
 
         return result
