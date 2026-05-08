@@ -199,12 +199,14 @@ jwplayer('jwplayer-container').setup({
                 {% endif %}
 
                 <div class="px-6 py-4 border-t border-base-300 flex flex-wrap gap-3 justify-center">
+                    {% if prev_url %}<a class="btn btn-primary btn-lg" href="{{prev_url}}"><span class="material-symbols-outlined">arrow_back_ios</span>Previous</a>{% endif %}
                     {% if not block_downloads %}
                     <a class="btn btn-outline btn-lg" href="javascript:history.back()"><span class="material-symbols-outlined">arrow_back</span>Back</a>
                     <a class="btn btn-success btn-lg" href="javascript:void(0)" onclick="downloadFile('{{download_url}}', '{{name}}')"><span class="material-symbols-outlined">download</span>Download ({{human_size}})</a>
                     {% else %}
                     <a class="btn btn-outline btn-lg" href="javascript:history.back()"><span class="material-symbols-outlined">arrow_back</span>Back</a>
                     {% endif %}
+                    {% if next_url %}<a class="btn btn-primary btn-lg" href="{{next_url}}">Next<span class="material-symbols-outlined">arrow_forward_ios</span></a>{% endif %}
                 </div>
 
             </div>
