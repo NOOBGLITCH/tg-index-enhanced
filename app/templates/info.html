@@ -201,10 +201,59 @@ jwplayer('jwplayer-container').setup({
                 </script>
 
                 {% elif media_type == 'audio' %}
-                <div class="p-6 text-center">
-                    {% if thumbnail %}<img class="w-32 h-32 mx-auto rounded-full shadow-xl mb-4" src="{{thumbnail}}" alt="">{% endif %}
-                    <audio controls class="w-full max-w-md mx-auto"><source src="{{download_url}}">Your browser doesn't support audio.</audio>
+                <div class="p-6">
+                    <div class="flex flex-col sm:flex-row items-center gap-6 max-w-2xl mx-auto">
+                        {% if thumbnail %}
+                        <div class="flex-shrink-0">
+                            <img id="audio-art" class="w-40 h-40 rounded-2xl shadow-2xl object-cover" src="{{thumbnail}}" alt="">
+                        </div>
+                        {% endif %}
+                        <div class="flex-1 w-full min-w-0">
+                            <p class="text-lg font-semibold mb-3 line-clamp-2 text-center sm:text-left">{{name}}</p>
+                            <div id="audio-jwplayer-container" class="w-full"></div>
+                        </div>
+                    </div>
                 </div>
+                <script>
+                (function() {
+                    var audioUrl = '{{download_url}}';
+                    var audioMime = '{{mime_type or "audio/mpeg"}}';
+                    var audioThumb = '{{thumbnail}}';
+                    var container = document.getElementById('audio-jwplayer-container');
+                    if (typeof jwplayer === 'undefined') {
+                        container.innerHTML = '<audio controls class="w-full"><source src="' + audioUrl + '" type="' + audioMime + '">Your browser does not support audio.</audio>';
+                        return;
+                    }
+                    jwplayer('audio-jwplayer-container').setup({
+                        file: audioUrl,
+                        image: audioThumb || '',
+                        type: 'mp3',
+                        width: '100%',
+                        height: 60,
+                        autostart: false,
+                        volume: 100,
+                        mute: false,
+                        controls: true,
+                        skin: { name: 'netflix' },
+                        abouttext: 'Telegram Index',
+                        aboutlink: window.location.origin,
+                        logo: { file: '', link: '' },
+                        playbackRateControls: [0.5, 0.75, 1, 1.25, 1.5, 2],
+                    });
+                    var art = document.getElementById('audio-art');
+                    if (art) {
+                        jwplayer('audio-jwplayer-container').on('play', function() {
+                            art.style.animation = 'spin 8s linear infinite';
+                        });
+                        jwplayer('audio-jwplayer-container').on('pause', function() {
+                            art.style.animationPlayState = 'paused';
+                        });
+                    }
+                })();
+                </script>
+                <style>
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                </style>
 
                 {% elif media_type == 'text' %}
                 <div class="p-6"><div class="bg-base-200 p-6 rounded-xl prose max-w-none">{{text_html|safe}}</div></div>
@@ -220,6 +269,17 @@ jwplayer('jwplayer-container').setup({
                 {% if reply_btns and reply_btns|length > 0 %}
                 <div class="px-6 py-4 border-t border-base-300 flex flex-wrap gap-2 justify-center">
                     {% for btn in reply_btns %}<a class="btn btn-primary btn-sm" href="{{btn.url}}" target="_blank"><span class="material-symbols-outlined">link</span>{{btn.text}}</a>{% endfor %}
+                </div>
+                {% endif %}
+
+                {% if download_url and download_url != '#' %}
+                <div class="px-6 py-3 border-t border-base-300 flex items-center gap-2 bg-base-200/50">
+                    <span class="material-symbols-outlined text-base-content/50 text-sm">link</span>
+                    <span class="text-xs text-base-content/60 truncate flex-1 font-mono" id="dl-link-text">{{download_url}}</span>
+                    <button id="copy-link-btn" onclick="copyDownloadLink()" class="btn btn-xs btn-outline gap-1 flex-shrink-0">
+                        <span class="material-symbols-outlined text-sm" id="copy-icon">content_copy</span>
+                        <span id="copy-label">Copy</span>
+                    </button>
                 </div>
                 {% endif %}
 
@@ -286,6 +346,40 @@ function downloadFile(url, filename) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+}
+function copyDownloadLink() {
+    var el = document.getElementById('dl-link-text');
+    var btn = document.getElementById('copy-link-btn');
+    var icon = document.getElementById('copy-icon');
+    var label = document.getElementById('copy-label');
+    if (!el) return;
+    var path = el.textContent.trim();
+    var text = path.startsWith('http') ? path : (window.location.origin + path);
+    navigator.clipboard.writeText(text).then(function() {
+        icon.textContent = 'check';
+        label.textContent = 'Copied!';
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-outline');
+        setTimeout(function() {
+            icon.textContent = 'content_copy';
+            label.textContent = 'Copy';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline');
+        }, 2000);
+    }).catch(function() {
+        var range = document.createRange();
+        range.selectNode(el);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        icon.textContent = 'check';
+        label.textContent = 'Copied!';
+        setTimeout(function() {
+            icon.textContent = 'content_copy';
+            label.textContent = 'Copy';
+        }, 2000);
+    });
 }
 </script>
 
