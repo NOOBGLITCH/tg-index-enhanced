@@ -161,7 +161,46 @@
                 }
 
                 body {
-                        transition: background-color var(--transition-speed), color var(--transition-speed);
+                        transition: none;
+                }
+
+                .theme-toggle {
+                        position: relative;
+                        width: 56px;
+                        height: 28px;
+                        background: #334155;
+                        border-radius: 999px;
+                        cursor: pointer;
+                        border: none;
+                        padding: 0;
+                        flex-shrink: 0;
+                        transition: background 0.15s;
+                }
+                .theme-toggle-knob {
+                        position: absolute;
+                        top: 3px;
+                        left: 3px;
+                        width: 22px;
+                        height: 22px;
+                        border-radius: 50%;
+                        background: #fff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: transform 0.15s cubic-bezier(.4,0,.2,1);
+                        box-shadow: 0 1px 4px rgba(0,0,0,.3);
+                }
+                [data-theme="light"] .theme-toggle {
+                        background: #f59e0b;
+                }
+                [data-theme="light"] .theme-toggle-knob {
+                        transform: translateX(28px);
+                        background: #fff;
+                }
+                .theme-toggle-icon {
+                        width: 13px;
+                        height: 13px;
+                        pointer-events: none;
                 }
 
                 @keyframes fadeIn {
@@ -222,13 +261,15 @@
                         </div>
 
                         <div class="navbar-end gap-2">
-                                <button onclick="toggleTheme()" class="btn btn-ghost btn-circle" title="Toggle Theme" aria-label="Toggle theme">
-                                        <svg class="w-5 h-5 light-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                        </svg>
-                                        <svg class="w-5 h-5 dark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                                        </svg>
+                                <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Theme" aria-label="Toggle theme">
+                                        <div class="theme-toggle-knob">
+                                                <svg class="theme-toggle-icon light-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5">
+                                                        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                                                </svg>
+                                                <svg class="theme-toggle-icon dark-icon" viewBox="0 0 24 24" fill="#6366f1" stroke="none">
+                                                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                                                </svg>
+                                        </div>
                                 </button>
 
                                 {% if authenticated %}
